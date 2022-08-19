@@ -82,6 +82,6 @@ def BD_adicionando_logins():
     print("Login e Senha criada com sucesso!!!")
 
 
-# BD_criar_BancoDeDados()
-# BD_criar_Logins()
-# BD_adicionando_logins()
+BD_criar_BancoDeDados()
+BD_criar_Logins()
+BD_adicionando_logins()

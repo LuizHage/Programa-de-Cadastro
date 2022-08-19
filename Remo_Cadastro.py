@@ -76,6 +76,38 @@ def data_hora():
     return data, data_e_hora_atuais.day, data_e_hora_atuais.month
 
 
+# Função de Verificação das Pendências de pagamento
+def pendencias(mes_ant):
+    """
+    No dia em que o mês virar, deve-se cobrar a mensalidade
+    Pago --> Pendente
+    Pendente --> Atraso 1
+    Atraso 1 --> Atraso 2
+    Atraso 2 --> Atraso 3 ==> Retirar o aluno do sistema.
+    """
+    (_, _, mes) = data_hora()
+    if mes_ant != mes:
+        # Conecta-se ao BD
+        conn = sqlite3.connect('remo_data1.db')
+        c = conn.cursor()
+        # Retira as informações do Banco de Dados
+        c.execute("SELECT * FROM alunos WHERE data_pagamento = '{}'".format(data_hj))
+        informacoes = c.fetchall()
+        for info in informacoes:
+
+            fin_page.append([i, str(info[0]), str(info[12]) + '-' + str(info[13]), ' ', dia,
+                             mes, str(info[18]), str(info[19])])
+        # ------------------------------------------------------------------
+        # Commit
+        conn.commit()
+        # Fechar
+        conn.close()
+
+
+
+pendencias()
+
+
 # ======================================================================================================================
 # Função que gera a folha de cálculo do financeiro
 def bd_excel():
