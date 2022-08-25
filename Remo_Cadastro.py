@@ -77,6 +77,7 @@ def data_hora():
 
 
 # Função de Verificação das Pendências de pagamento
+''' 
 def pendencias(mes_ant):
     """
     No dia em que o mês virar, deve-se cobrar a mensalidade
@@ -102,10 +103,9 @@ def pendencias(mes_ant):
         conn.commit()
         # Fechar
         conn.close()
+'''
 
-
-
-pendencias()
+# pendencias()
 
 
 # ======================================================================================================================
