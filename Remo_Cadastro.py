@@ -1102,10 +1102,16 @@ class Aluno:
         # 2-Verificação de variáveis numéricas
         # Dicionário com os caracteres para retirar (Todos os números)
         retirar_num_dic = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
+
         # Verificação Data de Nascimento
+        formato_dmy = True
+        try:
+            formato_dmy = bool(datetime.strptime(self.data_nasc, "%d/%m/%Y"))
+        except ValueError:
+            formato_dmy = False
         data_nasc_verif = str(self.data_nasc).strip()
         conversor = data_nasc_verif.maketrans(retirar_num_dic)
-        if data_nasc_verif.translate(conversor).isnumeric() and len(data_nasc_verif.translate(conversor)) == 8:
+        if data_nasc_verif.translate(conversor).isnumeric() and len(data_nasc_verif.translate(conversor)) == 8 and formato_dmy:
             data_nasc_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
@@ -1271,10 +1277,9 @@ class Aluno:
                 conn.commit()
                 conn.close()
             else:
-                # Se conecta ao BD pré-existente
+                # Se conecta ao BD
                 conn = sqlite3.connect('remo_data1.db')
                 c = conn.cursor()
-
                 # Inserir os dados na Tabela do BD
                 c.execute(
                     "INSERT INTO alunos VALUES (:nome_aluno, :data_nasc, :CPF, :RG, :sexo,:responsavel,:endereco,:CEP,"

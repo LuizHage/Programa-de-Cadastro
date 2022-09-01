@@ -19,7 +19,6 @@ def BD_file_existe():
         return False
 
 
-
 def BD_criar_BancoDeDados():
     # Criar uma base de dados ou se conectar a uma pré-existente
     conn = sqlite3.connect('remo_data1.db')
@@ -163,7 +162,7 @@ def BD_adicionando_alunos():
     print("Aluno criado com sucesso!!!")
 
 
-BD_file_existe()
+# BD_file_existe()
 # BD_criar_BancoDeDados()
 # BD_criar_Logins()
 # BD_adicionando_logins()
