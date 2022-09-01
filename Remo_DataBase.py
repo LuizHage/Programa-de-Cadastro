@@ -74,12 +74,13 @@ def BD_criar_Logins():
 
 
 def BD_adicionando_logins():
-    login = "Login"
-    senha = 123456
+    login = "LuizHage"
+    senha = "01001001010"
     # Criar uma base de dados ou se conectar a uma pré-existente
     conn = sqlite3.connect('remo_data1.db')
     c = conn.cursor()
     # Criar tabela do BD
+
     c.execute(
         "INSERT INTO logins VALUES (:login, :senha)",
         {
@@ -165,7 +166,7 @@ def BD_adicionando_alunos():
 # BD_file_existe()
 # BD_criar_BancoDeDados()
 # BD_criar_Logins()
-# BD_adicionando_logins()
+BD_adicionando_logins()
 # BD_modificando_alunos()
 # BD_adicionando_alunos()
 
