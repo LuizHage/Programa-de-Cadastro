@@ -6,6 +6,7 @@ Created on Wed May 18 08:50:10 2022
 
 import sqlite3
 import openpyxl
+from os import path
 from datetime import datetime
 from tkinter import IntVar, Checkbutton, W, E
 from tkinter import LabelFrame, Toplevel
@@ -16,7 +17,14 @@ from tkinter import ttk
 
 # ======================================================================================================================
 # ======================================================================================================================
-# Criando Classe do Login
+# Função para verificar se existe o arquivo com os dados do sistema
+def file_exist(file_name):
+    if path.isfile(file_name):
+        return True
+    else:
+        return False
+
+
 class TelaLogin(Tk):
     def __init__(self):
         super().__init__()
@@ -45,25 +53,28 @@ class TelaLogin(Tk):
     # Função para entrar no cadastro do sistema
     def func_entrar_programa(self, login, senha):
         # Se conectar a uma pré-existente
-        con = sqlite3.connect('remo_data1.db')
-        # Cria um cursor (meio de modificar o db)
-        q = con.cursor()
-        q.execute("SELECT * FROM logins WHERE login = '{}'".format(login))
-        informacoes = q.fetchone()
-        try:
-            if senha == informacoes[1]:
-                self.destroy()
-                # Chama a classe
-                app_Remo = RootPrograma()
-                # Main loop do Login
-                app_Remo.mainloop()
-        except TypeError:
-            messagebox.showerror("Erro de Login", "Usuário ou Senha não encontrados.")
-        # ------------------------------------------------------------------------------------------------------------------
-        # Commit
-        con.commit()
-        # Fechar
-        con.close()
+        if file_exist("remo_data1.db"):
+            con = sqlite3.connect('remo_data1.db')
+            # Cria um cursor (meio de modificar o db)
+            q = con.cursor()
+            q.execute("SELECT * FROM logins WHERE login = '{}'".format(login))
+            informacoes = q.fetchone()
+            try:
+                if senha == informacoes[1]:
+                    self.destroy()
+                    # Chama a classe
+                    app_Remo = RootPrograma()
+                    # Main loop do Login
+                    app_Remo.mainloop()
+            except TypeError:
+                messagebox.showerror("Erro de Login", "Usuário ou Senha não encontrados.")
+            # ------------------------------------------------------------------------------------------------------------------
+            # Commit
+            con.commit()
+            # Fechar
+            con.close()
+        else:
+            messagebox.showerror("Erro aa iniciar", "O Arquivo remo_data1 não foi encontrado.")
 
 
 # ======================================================================================================================
@@ -104,6 +115,7 @@ def pendencias(mes_ant):
         # Fechar
         conn.close()
 '''
+
 
 # pendencias()
 
