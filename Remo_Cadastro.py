@@ -1127,7 +1127,8 @@ class Aluno:
         # Verificação RG
         rg_verif = str(self.rg).strip()
         conversor = rg_verif.maketrans(retirar_num_dic)
-        if rg_verif.translate(conversor).isnumeric() and len(rg_verif.translate(conversor)) == 7:
+        if rg_verif.translate(conversor).isnumeric() and \
+                (len(rg_verif.translate(conversor)) <= 7 or len(rg_verif.translate(conversor)) <= 12):
             rg_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
