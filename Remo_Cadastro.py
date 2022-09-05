@@ -1039,9 +1039,8 @@ class Aluno:
         # 1-Verificação de textos
         # Verificação para o nome do aluno
         nome_aluno_verif = str(self.nome_aluno).strip()  # strip()
-        # Verifica se o nome está com letra maiúscula em cada nome
-        if nome_aluno_verif.istitle() and any(
-                CHR.isdigit() for CHR in nome_aluno_verif) == False and nome_aluno_verif.replace(" ", "").isalpha():
+        # Verifica se o nome está com letras alfanuméricas
+        if any(CHR.isdigit() for CHR in nome_aluno_verif) == False and nome_aluno_verif.replace(" ", "").isalpha():
             nome_aluno_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
@@ -1058,9 +1057,7 @@ class Aluno:
             responsavel_verif = str(self.responsavel).strip()
             # Verifica se o nome está com letra maiúscula em cada nome, se possui números e se todos os caracteres
             # são alfabéticos
-            if responsavel_verif.istitle() and any(
-                    CHR.isdigit() for CHR in responsavel_verif) == False and responsavel_verif.replace(" ",
-                                                                                                       "").isalpha():
+            if any(CHR.isdigit() for CHR in responsavel_verif) == False and responsavel_verif.replace(" ", "").isalpha():
                 responsavel_verif = True
             else:
                 messagebox.showerror("Erro de entrada de dados",
@@ -1071,8 +1068,7 @@ class Aluno:
         # Verificação para o Professor
         professor_verif = str(self.professor).strip()  # strip()
         # Verifica se o nome está com letra maiúscula em cada nome
-        if professor_verif.istitle() and any(
-                CHR.isdigit() for CHR in professor_verif) == False and professor_verif.replace(" ", "").isalpha():
+        if any(CHR.isdigit() for CHR in professor_verif) == False and professor_verif.replace(" ", "").isalpha():
             professor_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
