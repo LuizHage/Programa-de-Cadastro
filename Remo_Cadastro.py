@@ -31,7 +31,6 @@ class TelaLogin(Tk):
         # --------------------------------------------------------------------------------------------------------------
         # Configuração da tela
         self.title('Login - Clube do Remo')
-        # login.geometry("745x600")
         self.resizable(False, False)
         # --------------------------------------------------------------------------------------------------------------
         # Criando as partes essênciais de ‘login’
@@ -45,8 +44,7 @@ class TelaLogin(Tk):
 
         Button(self, text="Entrar",
                command=lambda: self.func_entrar_programa(self.login_entry.get(), self.senha_entry.get()
-                                                         )).grid(row=3, column=0, columnspan=2,
-                                                                 sticky=W, padx=10)
+                                                         )).grid(row=3, column=0, columnspan=2,sticky=W, padx=10)
 
     # ==============================================================================
     # ==============================================================================
@@ -161,7 +159,7 @@ def bd_excel():
             book.save('Planilhas de Controle - Teste.xlsx')
             messagebox.showinfo("Processo Concluído", "Planilha do Excel gerado com sucesso!")
         # ----------------------------------------------------------------------
-        except:
+        except PermissionError:
             # Erro ao salvar/gerar o arquivo
             messagebox.showerror("Erro ao criar Excel", "Feche o arquivo Excel para criar o novo arquivo!!!")
     # --------------------------------------------------------------------------
@@ -288,7 +286,7 @@ class RootPrograma(Tk):
         # Entrada de dados
         # Frame 1
         Label(self.frame1, text="Nome do Aluno").grid(row=0, column=0, sticky=W)
-        self.nome_aluno = Entry(self.frame1, width=50)  # 70
+        self.nome_aluno = Entry(self.frame1, width=50)
         self.nome_aluno.grid(row=0, column=1, sticky=W, padx=10, pady=5)
         # ------------------------------------------------------------------------------
         Label(self.frame1, text="CPF").grid(row=1, column=0, sticky=W)
@@ -309,7 +307,7 @@ class RootPrograma(Tk):
         # ------------------------------------------------------------------------------
         Label(self.frame1, text="Endereço").grid(row=3, column=0, sticky=W)
         self.endereco = Entry(self.frame1, width=50)
-        self.endereco.grid(row=3, column=1, sticky=W, padx=10, pady=5)  # columnspan=2,
+        self.endereco.grid(row=3, column=1, sticky=W, padx=10, pady=5)
         # ------------------------------------------------------------------------------
         Label(self.frame1, text="CEP").grid(row=4, column=0, sticky=W)
         self.cep = Entry(self.frame1)
@@ -333,7 +331,7 @@ class RootPrograma(Tk):
         Label(self.frame1, text="Sexo").grid(row=1, column=2, sticky=W)
         # Fazer combobox depois
         # sexo_drop = ttk.Combobox(frame1, textvariable=sexo)#, *sexualidade
-        self.sexo_drop = OptionMenu(self.frame1, self.sexo, *self.sexualidade_list)  # ,
+        self.sexo_drop = OptionMenu(self.frame1, self.sexo, *self.sexualidade_list)
         self.sexo_drop.grid(row=1, column=3, sticky=W, padx=5, pady=5)
         # ------------------------------------------------------------------------------
         Label(self.frame1, text="Bairro").grid(row=4, column=2, sticky=W)
@@ -342,9 +340,15 @@ class RootPrograma(Tk):
         # ------------------------------------------------------------------------------
         # Sócio
         Label(self.frame1, text="Sócio").grid(row=5, column=2, sticky=W)
+        # Entry começa desabilitado e depois habilita
         self.social = IntVar()
-        self.s = Checkbutton(self.frame1, text="Sim", variable=self.social)
-        self.s.grid(row=5, column=3, sticky=W, padx=5)
+        self.s = Checkbutton(self.frame1, text="Sim", variable=self.social, command=self.caixa_socio)
+        self.s.grid(row=5, column=2, sticky=W, padx=60, columnspan=2)
+        self.socio = Entry(self.frame1)
+        self.socio.insert(0, "0")
+        self.socio.configure(state='disabled')
+        self.socio.grid(row=5, column=3, sticky=W, padx=5, pady=5)
+
         # ==============================================================================
         # Frame 2
         # Modalidades
@@ -370,6 +374,8 @@ class RootPrograma(Tk):
             'verde': "Gorro Verde",
             'vermelho': "Gorro Vermelho",
             'infanto': "Infanto",
+            'Pre': "Pré-equipe",
+            'equipe': "Equipe",
             'adulto': "Adulto"
         }
         self.idade = StringVar()
@@ -389,11 +395,13 @@ class RootPrograma(Tk):
             'natacao_infantil': ["9:00", "9:40", "10:20",
                                  "14:00", "14:40", "15:20", "16:00", "16:40", "17:20"],
             'natacao_infanto': ["8:00", "16:00", "18:00"],
+            'natacao_Pre': ["8:00", "16:00"],
+            'natacao_equipe': ["8:00", "16:00"],
             'natacao_adulto': [
                 # Manhã
                 "6:00", "7:00", "8:00", "9:00", "10:00", "11:00", "12:00", "13:00",
                 # Tarde
-                "14:00", "15:00", "18:00", "19:00", "20:00"]
+                "14:00", "15:00", "16:00", "18:00", "19:00", "20:00"]
         }
         self.horario = StringVar()
         self.horario.set(self.horarios_dic["vazio"])
@@ -410,15 +418,27 @@ class RootPrograma(Tk):
                                 "3ª, 4ª e 6ª",
                                 "3ª e 5ª",
                                 "4ª e 6ª",
-                                "Sábado"]
+                                "Sábado",
+                                "2ª e 6ª",
+                                "3ª e 6ª"]
+
         self.dias_aulas_dic = {
             'vazio': self.dias_aulas_list[0],
-            'hidro': self.dias_aulas_list[2:4],
+            # "2ª, 4ª e 6ª", "3ª, 4ª e 6ª",
+            'hidro': self.dias_aulas_list[1:3],
+            # "4ª e 6ª", "Sábado"
             'polo': self.dias_aulas_list[4:6],
+            # "3ª e 5ª", "4ª e 6ª",
             'baby': self.dias_aulas_list[3:5],
+            # "2ª, 4ª e 6ª", "3ª, 4ª e 6ª", "3ª e 5ª", "4ª e 6ª",
             'natacao_infantil': self.dias_aulas_list[1:5],
+            # "2ª, 4ª e 6ª", "3ª e 5ª",
             'natacao_infanto': [self.dias_aulas_list[1], self.dias_aulas_list[3]],
-            'natacao_adulto': self.dias_aulas_list[1:4]
+            # "2ª e 6ª", "3ª e 6ª"
+            'natacao_Pre': self.dias_aulas_list[6:8],
+            'natacao_equipe': self.dias_aulas_list[6:8],
+            # "2ª, 4ª e 6ª", "3ª, 4ª e 6ª", "3ª e 5ª", "2ª e 6ª", "3ª e 6ª"
+            'natacao_adulto': self.dias_aulas_list[1:4] + self.dias_aulas_list[6:8]
         }
         self.dia = StringVar()
         self.dia.set(self.dias_aulas_dic["vazio"])
@@ -478,9 +498,13 @@ class RootPrograma(Tk):
         self.cep.delete(0, END)
         self.bairro.delete(0, END)
         self.fone.delete(0, END)
-        self.professor.delete(0, END)
+        # Retornar Sócio ao estado inicial
+        self.socio.delete(0, END)
+        self.socio.insert(0, "0")
+        self.socio.configure(state='disabled')
         self.mensalidade.delete(0, END)
         self.matricula.delete(0, END)
+        self.professor.delete(0, END)
 
     # 2- Desabilitar todas as caixas de texto
     def func_desabilitar_texto(self):
@@ -542,7 +566,18 @@ class RootPrograma(Tk):
             self.responsavel.delete(0, END)
             self.responsavel.configure(state='disabled')
 
-    # 5- Marcar a caixa 'sim' em Mensalidade
+    # 5- Marcar a caixa 'sim' em Sócio
+    def caixa_socio(self):
+        # global responsavel
+        if self.social.get() == 1:
+            self.socio.configure(state='normal')
+            self.socio.delete(0, END)
+        else:
+            self.socio.delete(0, END)
+            self.socio.insert(0, "0")
+            self.socio.configure(state='disabled')
+
+    # 6- Marcar a caixa 'sim' em Mensalidade
     def func_cadastro_anterior(self):
         # global pesquisa
         var = self.mat.get()
@@ -561,7 +596,7 @@ class RootPrograma(Tk):
             # Retomar a Caixa de matrícula para o estado inicial
             self.func_habilitar_texto()
 
-    # 6- Marcar a caixa 'sim' em Bolsista
+    # 7- Marcar a caixa 'sim' em Bolsista
     def caixa_bolsista(self):
         # Ações do programa quando a caixa de bolsista for selecionada
         var = self.bolsista.get()
@@ -575,26 +610,29 @@ class RootPrograma(Tk):
             self.matricula.insert(0, '0')
             self.matricula.configure(state='disabled')
         else:
-            # Limpa mensalidade, escreve 0 e desabilita
+            # Retorna ao estado inicial habilitado
             self.mensalidade.configure(state='normal')
             self.mensalidade.delete(0, END)
-            # Limpa matrícula, escreve 0 e desabilita
             self.matricula.configure(state='normal')
             self.matricula.delete(0, END)
 
-    # 7- Botão Limpar --> retornar os valores ao estado inicial
+    # 8- Botão Limpar --> retornar os valores ao estado inicial
     def comando_limpar(self):
         # Descelecionar as caixas
         self.r.deselect()
         self.s.deselect()
         self.b.deselect()
-        self.func_limpar_texto()
         # Caso Matrícula esteja selecionada
         if self.mat.get() == 1:
             # Habilitar texto e desselecionar a caixa
             self.func_habilitar_texto()
             self.m.deselect()
         # Colocar as caixas de Opção no estado inicial
+        self.mensalidade.configure(state='normal')
+        self.mensalidade.delete(0, END)
+        self.matricula.configure(state='normal')
+        self.matricula.delete(0, END)
+        self.func_limpar_texto()
         self.sexo.set(self.sexualidade_list[0])
         self.mod.set(self.modalidades_dic["vazio"])
         self.idade.set(self.idades_dic["vazio"])
@@ -705,6 +743,28 @@ class RootPrograma(Tk):
                     self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_infanto)
                     self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
 
+                elif self.idade.get() == self.idades_dic["Pre"]:  # Pré-equipe
+                    # Horário
+                    self.horario.set(self.horarios_dic["natacao_Pre"][0])
+                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, *self.horarios_dic["natacao_Pre"])
+                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
+                    # Dias das aulas
+                    dias_aulas_adt = self.dias_aulas_dic["natacao_Pre"]
+                    self.dia.set(dias_aulas_adt[0])
+                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_adt)
+                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
+
+                elif self.idade.get() == self.idades_dic["equipe"]:  # Equipe
+                    # Horário
+                    self.horario.set(self.horarios_dic["natacao_equipe"][0])
+                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, *self.horarios_dic["natacao_equipe"])
+                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
+                    # Dias das aulas
+                    dias_aulas_adt = self.dias_aulas_dic["natacao_equipe"]
+                    self.dia.set(dias_aulas_adt[0])
+                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_adt)
+                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
+
                 elif self.idade.get() == self.idades_dic["adulto"]:  # Adulto 18+
                     # Horário
                     self.horario.set(self.horarios_dic["natacao_adulto"][0])
@@ -742,6 +802,7 @@ class RootPrograma(Tk):
         # Sinalizador aqui, nesta identação
 
     # 2- Botão de Confirmar os dados no final do Programa
+    # noinspection PyGlobalUndefined
     def confirmacao_final(self):
         if self.mat.get() == 1:
             # Criando uma segunda janela para mostrar os dados do aluno cadastrado
@@ -961,20 +1022,27 @@ class RootPrograma(Tk):
             if self.horario.get() == self.horarios_dic["vazio"] or self.dia.get() == self.dias_aulas_dic["vazio"]:
                 # Caso a Hora ou o Dia não estejam selecionados
                 messagebox.showerror("Erro na seleção", "Horário ou Dia não selecionados")
-            elif self.dia.get() == self.dias_aulas_list[1] and horario_manha:
+            elif self.dia.get().startswith("2ª") and horario_manha:
                 # Se for escolhido segunda num horário de manhã
                 messagebox.showerror("Erro na seleção", "O horário da manhã é indisponível durante às segundas")
+            elif self.dia.get() == "3ª e 6ª" and self.horario.get() == "16:00":
+                # Se for escolhido 3ª e 6ª no horário das 16
+                messagebox.showerror("Erro na seleção",
+                                     "Esta combinação de horário e dia estão indisponíveis.\n"
+                                     "Favor, escolher outro horário ou dia.")
             else:
                 # Caso os dois estejam selecionados
                 resposta = messagebox.askquestion("Confirmar informações", "O sistema pode verificar as informações?")
                 if resposta == "yes":
                     # Atualizar a data para a atual
-                    # modificar_data = 1
+
+
+
                     # Chama a classe Aluno
                     aluno_registrado = Aluno(self.nome_aluno.get(), self.data_nasc.get(), self.cpf.get(), self.rg.get(),
                                              self.sexo.get(), self.resp.get(), self.responsavel.get(),
                                              self.endereco.get(), self.bairro.get(), self.cep.get(), self.fone.get(),
-                                             self.social.get(),
+                                             self.socio.get(),
                                              self.mat.get(),
                                              self.mod.get(), self.idade.get(), self.horario.get(), self.dia.get(),
                                              self.professor.get(), self.bolsista.get(), self.matricula.get(),
@@ -1044,7 +1112,8 @@ class Aluno:
             nome_aluno_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O Nome do Aluno não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O Nome do Aluno não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             nome_aluno_verif = False
         # --------------------------------------------------------------------------
         # Verificação para o nome do responsável, caso tenha um
@@ -1061,8 +1130,8 @@ class Aluno:
                 responsavel_verif = True
             else:
                 messagebox.showerror("Erro de entrada de dados",
-                                     "O Nome do Responsável não está no padrão certo!\n Favor, revise esta caixa de "
-                                     "texto.")
+                                     "O Nome do Responsável não está no padrão certo!\n"
+                                     "Favor, revise esta caixa de texto.")
                 responsavel_verif = False
                 # --------------------------------------------------------------------------
         # Verificação para o Professor
@@ -1072,7 +1141,8 @@ class Aluno:
             professor_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O nome do PROFESSOR não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O nome do PROFESSOR não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             professor_verif = False
         # Dicionário com os caracteres para retirar (endereço e bairro)
         retirar_dic1 = {',': None, '.': None, ' ': None}
@@ -1083,7 +1153,8 @@ class Aluno:
             endereco_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O Endereço não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O Endereço não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             endereco_verif = False
         # Verificação do bairro
         bairro_verif = str(self.bairro).strip()
@@ -1092,7 +1163,8 @@ class Aluno:
             bairro_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O Bairro não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O Bairro não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             bairro_verif = False
         # --------------------------------------------------------------------------
         # 2-Verificação de variáveis numéricas
@@ -1111,17 +1183,19 @@ class Aluno:
             data_nasc_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "A Data de Nascimnto não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "A Data de Nascimnto não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             data_nasc_verif = False
         # --------------------------------------------------------------------------
         # Verificação CPF
         cpf_verif = str(self.cpf).strip()
         conversor = cpf_verif.maketrans(retirar_num_dic)
-        if cpf_verif.translate(conversor).isnumeric():
+        if cpf_verif.translate(conversor).isnumeric() and len(cpf_verif.translate(conversor)) == 11:
             cpf_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O CPF não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O CPF não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             cpf_verif = False
         # --------------------------------------------------------------------------
         # Verificação RG
@@ -1132,7 +1206,8 @@ class Aluno:
             rg_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O RG não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O RG não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             rg_verif = False
         # --------------------------------------------------------------------------
         # Verificação do CEP
@@ -1142,7 +1217,8 @@ class Aluno:
             cep_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O CEP não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O CEP não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             cep_verif = False
         # --------------------------------------------------------------------------
         # Verificação do Telefone
@@ -1152,8 +1228,19 @@ class Aluno:
             tel_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O Telefone não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O Telefone não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             tel_verif = False
+        # --------------------------------------------------------------------------
+        # Verificação do número de sócio
+        soc_verif = str(self.socio).strip()
+        if soc_verif.isnumeric():
+            soc_verif = True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 "O número do Sócio não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            soc_verif = False
         # --------------------------------------------------------------------------
         # Verificação de Mensalidade
         mensalidade_verif = str(self.valor_mensalidade).strip()
@@ -1162,7 +1249,8 @@ class Aluno:
             mensalidade_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O valor da Mensalidade não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O valor da Mensalidade não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             mensalidade_verif = False
         # --------------------------------------------------------------------------
         # Verificação de Valor da matrícula
@@ -1172,7 +1260,8 @@ class Aluno:
             matricula_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
-                                 "O valor da Matrícula não está no padrão certo!\n Favor, revise esta caixa de texto.")
+                                 "O valor da Matrícula não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
             matricula_verif = False
         # --------------------------------------------------------------------------
         # 3-Verificação das aulas (necessário para a modificação das infos)
@@ -1191,7 +1280,7 @@ class Aluno:
         # Idades
         idades_dic = {'baby': "Gorro Branco", 'amarelo': "Gorro Amarelo",
                       'laranja': "Gorro Laranja", 'verde': "Gorro Verde", 'vermelho': "Gorro Vermelho",
-                      'infanto': "Infanto", 'adulto': "Adulto"}
+                      'infanto': "Infanto", 'Pre': "Pré-equipe", 'equipe': "Equipe", 'adulto': "Adulto"}
 
         idades_verif = False
         for k in idades_dic:
@@ -1202,7 +1291,7 @@ class Aluno:
         # Horário
         horarios_list = ["8:20", "9:40", "10:20", "14:40", "15:20", "16:40", "17:20",
                          "6:00", "7:00", "8:00", "9:00", "10:00", "11:00", "12:00",
-                         "13:00", "14:00", "15:00", "18:00", "19:00", "20:00"]
+                         "13:00", "14:00", "15:00", "16:00", "18:00", "19:00", "20:00"]
         horarios_verif = False
         for itens in horarios_list:
             if self.horario == itens:
@@ -1211,7 +1300,7 @@ class Aluno:
         # --------------------------------------------------------------------------
         # Dias das Aulas
         dias_aulas_list = ["2ª, 4ª e 6ª", "3ª, 4ª e 6ª",
-                           "3ª e 5ª", "4ª e 6ª", "Sábado"]
+                           "3ª e 5ª", "4ª e 6ª", "Sábado", "2ª e 6ª", "3ª e 6ª"]
         dias_aulas_verif = False
         for itens in dias_aulas_list:
             if self.dias_das_aulas == itens:
@@ -1220,12 +1309,12 @@ class Aluno:
         # ======================================================================
         # Retorna True se todas as respostas foram positivas
         if all([nome_aluno_verif, responsavel_verif, professor_verif, cpf_verif, rg_verif, endereco_verif, bairro_verif,
-                data_nasc_verif, cep_verif, tel_verif, mensalidade_verif, matricula_verif,
+                data_nasc_verif, cep_verif, tel_verif, soc_verif, mensalidade_verif, matricula_verif,
                 modalidade_verif, idades_verif, horarios_verif, dias_aulas_verif]):
             # Confirma se as informações estão corretas
             resposta_verificacao = messagebox.askquestion("Confirmar informações",
-                                                          "As informações deste aluno foram verificadas com "
-                                                          "sucesso.\n Você confirma estas informações?")
+                                                          "As informações deste aluno foram verificadas com sucesso.\n"
+                                                          "Você confirma estas informações?")
             if resposta_verificacao == 'yes':
                 return True
             else:
@@ -1235,8 +1324,8 @@ class Aluno:
 
         else:
             messagebox.showerror("Erro na matrícula",
-                                 "Algumas informações foram escritas fora do padrão.\n Favor, verificar as "
-                                 "informações corretamente.")
+                                 "Algumas informações foram escritas fora do padrão.\n"
+                                 "Favor, verificar as informações corretamente.")
             return False
 
     def bd_enviar_dados(self):
