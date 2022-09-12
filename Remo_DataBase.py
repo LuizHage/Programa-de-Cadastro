@@ -6,17 +6,7 @@ Created on Tue Jul 12 12:35:28 2022
 
 import sqlite3
 from datetime import datetime
-from os import path
-
-
-def BD_file_existe():
-    fileName = "remo_data1.db"
-    if path.isfile(fileName):
-        print("O arquivo de banco de dados está na pasta.")
-        return True
-    else:
-        print("O arquivo de banco de dados não foi encontrado!!!")
-        return False
+# from os import path
 
 
 def BD_criar_BancoDeDados():
@@ -163,9 +153,8 @@ def BD_adicionando_alunos():
     print("Aluno criado com sucesso!!!")
 
 
-# BD_file_existe()
 # BD_criar_BancoDeDados()
-# BD_criar_Logins()
+BD_criar_Logins()
 BD_adicionando_logins()
 # BD_modificando_alunos()
 # BD_adicionando_alunos()

@@ -44,7 +44,7 @@ class TelaLogin(Tk):
 
         Button(self, text="Entrar",
                command=lambda: self.func_entrar_programa(self.login_entry.get(), self.senha_entry.get()
-                                                         )).grid(row=3, column=0, columnspan=2,sticky=W, padx=10)
+                                                         )).grid(row=3, column=0, columnspan=2, sticky=W, padx=10)
 
     # ==============================================================================
     # ==============================================================================
@@ -1108,7 +1108,7 @@ class Aluno:
         # Verificação para o nome do aluno
         nome_aluno_verif = str(self.nome_aluno).strip()  # strip()
         # Verifica se o nome está com letras alfanuméricas
-        if any(CHR.isdigit() for CHR in nome_aluno_verif) == False and nome_aluno_verif.replace(" ", "").isalpha():
+        if nome_aluno_verif.replace(" ", "").isalpha():
             nome_aluno_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
@@ -1126,7 +1126,7 @@ class Aluno:
             responsavel_verif = str(self.responsavel).strip()
             # Verifica se o nome está com letra maiúscula em cada nome, se possui números e se todos os caracteres
             # são alfabéticos
-            if any(CHR.isdigit() for CHR in responsavel_verif) == False and responsavel_verif.replace(" ", "").isalpha():
+            if responsavel_verif.replace(" ", "").isalpha():
                 responsavel_verif = True
             else:
                 messagebox.showerror("Erro de entrada de dados",
@@ -1137,7 +1137,7 @@ class Aluno:
         # Verificação para o Professor
         professor_verif = str(self.professor).strip()  # strip()
         # Verifica se o nome está com letra maiúscula em cada nome
-        if any(CHR.isdigit() for CHR in professor_verif) == False and professor_verif.replace(" ", "").isalpha():
+        if professor_verif.replace(" ", "").isalpha():
             professor_verif = True
         else:
             messagebox.showerror("Erro de entrada de dados",
@@ -1172,7 +1172,6 @@ class Aluno:
         retirar_num_dic = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
 
         # Verificação Data de Nascimento
-        formato_dmy = True
         try:
             formato_dmy = bool(datetime.strptime(self.data_nasc, "%d/%m/%Y"))
         except ValueError:
@@ -1405,8 +1404,9 @@ class Aluno:
                 messagebox.showinfo("Processo concuído", "Informações entregues com sucesso!")
                 return True
 
-        except:
-            messagebox.showerror("Processo cancelado", "Ocorreu algum erro ao enviar as informações.")
+        except sqlite3.OperationalError:
+            messagebox.showerror("Processo cancelado", "O arquivo de armazenamento de dados não está completo!\n"
+                                                       "Favor, contatar o projetista do sistema para resolver o erro.")
             return False
 
     # ==========================================================================
