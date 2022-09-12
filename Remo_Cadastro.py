@@ -419,8 +419,8 @@ class RootPrograma(Tk):
                                 "3ª e 5ª",
                                 "4ª e 6ª",
                                 "Sábado",
-                                "2ª e 6ª",
-                                "3ª e 6ª"]
+                                "2ª a 6ª",
+                                "3ª a 6ª"]
 
         self.dias_aulas_dic = {
             'vazio': self.dias_aulas_list[0],
@@ -434,10 +434,10 @@ class RootPrograma(Tk):
             'natacao_infantil': self.dias_aulas_list[1:5],
             # "2ª, 4ª e 6ª", "3ª e 5ª",
             'natacao_infanto': [self.dias_aulas_list[1], self.dias_aulas_list[3]],
-            # "2ª e 6ª", "3ª e 6ª"
+            # "2ª a 6ª", "3ª a 6ª"
             'natacao_Pre': self.dias_aulas_list[6:8],
             'natacao_equipe': self.dias_aulas_list[6:8],
-            # "2ª, 4ª e 6ª", "3ª, 4ª e 6ª", "3ª e 5ª", "2ª e 6ª", "3ª e 6ª"
+            # "2ª, 4ª e 6ª", "3ª, 4ª e 6ª", "3ª e 5ª", "2ª a 6ª", "3ª a 6ª"
             'natacao_adulto': self.dias_aulas_list[1:4] + self.dias_aulas_list[6:8]
         }
         self.dia = StringVar()
@@ -1299,7 +1299,7 @@ class Aluno:
         # --------------------------------------------------------------------------
         # Dias das Aulas
         dias_aulas_list = ["2ª, 4ª e 6ª", "3ª, 4ª e 6ª",
-                           "3ª e 5ª", "4ª e 6ª", "Sábado", "2ª e 6ª", "3ª e 6ª"]
+                           "3ª e 5ª", "4ª e 6ª", "Sábado", "2ª a 6ª", "3ª a 6ª"]
         dias_aulas_verif = False
         for itens in dias_aulas_list:
             if self.dias_das_aulas == itens:
