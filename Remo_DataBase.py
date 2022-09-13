@@ -154,7 +154,7 @@ def BD_adicionando_alunos():
 
 
 # BD_criar_BancoDeDados()
-BD_criar_Logins()
+# BD_criar_Logins()
 BD_adicionando_logins()
 # BD_modificando_alunos()
 # BD_adicionando_alunos()

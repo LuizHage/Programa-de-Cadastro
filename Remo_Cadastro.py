@@ -55,7 +55,7 @@ class TelaLogin(Tk):
             con = sqlite3.connect('remo_data1.db')
             # Cria um cursor (meio de modificar o db)
             q = con.cursor()
-            q.execute("SELECT * FROM logins WHERE login = '{}'".format(login))
+            q.execute(f"SELECT * FROM logins WHERE login = '{login}'")
             informacoes = q.fetchone()
             try:
                 if senha == informacoes[1]:
@@ -125,7 +125,8 @@ def bd_excel():
     # Mensagem para perguntar sobre gerar Excel
     resposta = messagebox.askquestion("Confirmar informações",
                                       "Um arquivo Excel sobre a movimentação financeira será gerado E O ANTIGO SERÁ "
-                                      "APAGADO.\n Você confirma estas informações?")
+                                      "APAGADO.\n"
+                                      "Você confirma estas informações?")
     if resposta == 'yes':
         try:
             # Cria uma Planilha no Excel
@@ -142,13 +143,14 @@ def bd_excel():
             # Função para retirar a data, dia e mês
             [data_hj, dia, mes] = data_hora()
             # Retira as informações do Banco de Dados
-            c.execute("SELECT * FROM alunos WHERE data_pagamento = '{}'".format(data_hj))
+            c.execute(f"SELECT * FROM alunos WHERE data_pagamento = '{data_hj}'")
             informacoes = c.fetchall()
             i = 1
             for info in informacoes:
                 # Escreve nas linhas do Excel n°, Aluno, Turma, Atraso, dia, mês, mat, mens
-                fin_page.append([i, str(info[0]), str(info[12]) + '-' + str(info[13]), ' ', dia,
-                                 mes, str(info[18]), str(info[19])])
+                aluno, turma, atraso, mat, mens = str(info[0]), str(info[12]) + '-' + str(info[13]),\
+                                                  ' ',  str(info[18]), str(info[19])
+                fin_page.append([i, aluno + '-' + turma, atraso, dia, mes, mat, mens])
                 i += 1
             # ------------------------------------------------------------------
             # Commit
@@ -167,7 +169,8 @@ def bd_excel():
 
 # ==============================================================================
 # Função para modificar as informações do aluno
-def modificar_info(aluno, data_nasc, cpf, rg, sexo, responsavel, endereco, cep, bairro, telefone, socio,
+def modificar_info(aluno, data_nasc, cpf, rg, sexo, responsavel,
+                   endereco, cep, bairro, telefone, socio,
                    modalidade, faixa, hora, dias_aula,
                    professor, bolsista, valor_matricula, valor_mensalidade, mensalidade_paga):
     # Se tem responsável ou não
@@ -190,50 +193,29 @@ def modificar_info(aluno, data_nasc, cpf, rg, sexo, responsavel, endereco, cep, 
         # Criar uma base de dados ou se conectar a uma pré-existente
         conn = sqlite3.connect('remo_data1.db')
         c = conn.cursor()
-        c.execute('''UPDATE alunos SET
-                      nome_aluno = :nome, 
-                      data_nasc = :data,
-                      RG = :rg,
-                      sexo = :sexo,
-                      responsavel = :responsavel, 
-                      endereco = :endereco, 
-                      CEP = :cep, 
-                      bairro = :bairro, 
-                      telefone = :telefone,
-                      socio = :socio,
-                      modalidade = :mod,
-                      idade = :idade,
-                      horario_aula = :horario,
-                      dias_aula = :dias_aula,
-                      professor = :professor,
-                      bolsista = :bolsista,
-                      valor_matricula = :valor_matricula,
-                      valor_mensalidade = :valor_mensalidade,
-                      mensalidade_paga = :mensalidade_paga
+        c.execute(f'''UPDATE alunos SET
+                      nome_aluno = :{str(aluno)}, 
+                      data_nasc = :{str(data_nasc)},
+                      RG = :{int(rg)},
+                      sexo = :{sexo},
+                      responsavel = :{responsavel}, 
+                      endereco = :{endereco}, 
+                      CEP = :{int(cep)}, 
+                      bairro = :{bairro}, 
+                      telefone = :{int(telefone)},
+                      socio = :{int(socio)},
+                      
+                      modalidade = :{modalidade},
+                      idade = :{faixa},
+                      horario_aula = :{hora},
+                      dias_aula = :{dias_aula},
+                      professor = :{professor},
+                      bolsista = :{bolsista},
+                      valor_matricula = :{int(valor_matricula)},
+                      valor_mensalidade = :{int(valor_mensalidade)},
+                      mensalidade_paga = :{mensalidade_paga}
 
-                      WHERE CPF = :cpf''',
-                  {
-                      'nome': str(aluno),
-                      'data': str(data_nasc),
-                      'rg': int(rg),
-                      'sexo': sexo,
-                      'responsavel': responsavel,
-                      'endereco': endereco,
-                      'cep': int(cep),
-                      'bairro': bairro,
-                      'telefone': int(telefone),
-                      'socio': int(socio),
-                      'mod': modalidade,
-                      'idade': faixa,
-                      'horario': hora,
-                      'dias_aula': dias_aula,
-                      'professor': professor,
-                      'bolsista': bolsista,
-                      'valor_matricula': int(valor_matricula),
-                      'valor_mensalidade': int(valor_mensalidade),
-                      'mensalidade_paga': mensalidade_paga,
-                      'cpf': cpf
-                  })
+                      WHERE CPF = :{cpf}''')
         # Commit
         conn.commit()
         # Fechar
@@ -393,7 +375,8 @@ class RootPrograma(Tk):
             'polo': "8:00",
             'baby': "8:20",
             'natacao_infantil': ["9:00", "9:40", "10:20",
-                                 "14:00", "14:40", "15:20", "16:00", "16:40", "17:20"],
+                                 "14:00", "14:40", "15:20",
+                                 "16:00", "16:40", "17:20"],
             'natacao_infanto': ["8:00", "16:00", "18:00"],
             'natacao_Pre': ["8:00", "16:00"],
             'natacao_equipe': ["8:00", "16:00"],
@@ -854,7 +837,7 @@ class RootPrograma(Tk):
             conn = sqlite3.connect('remo_data1.db')
             c = conn.cursor()
             # Pesquisar os dados no BD
-            c.execute("SELECT * FROM alunos WHERE CPF = " + self.pesquisa.get())
+            c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
             # Pegar todas as infos
             informacoes = c.fetchall()
             cpf_num = ''
@@ -965,7 +948,7 @@ class RootPrograma(Tk):
             conn = sqlite3.connect('remo_data1.db')
             c = conn.cursor()
             # Pesquisar os dados no BD
-            c.execute("SELECT * FROM alunos WHERE CPF = " + self.pesquisa.get())
+            c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
             # Pegar todas as infos
             informacoes = c.fetchall()
             for info in informacoes:
@@ -1036,8 +1019,6 @@ class RootPrograma(Tk):
                 if resposta == "yes":
                     # Atualizar a data para a atual
 
-
-
                     # Chama a classe Aluno
                     aluno_registrado = Aluno(self.nome_aluno.get(), self.data_nasc.get(), self.cpf.get(), self.rg.get(),
                                              self.sexo.get(), self.resp.get(), self.responsavel.get(),
@@ -1053,6 +1034,76 @@ class RootPrograma(Tk):
 
 
 # ==============================================================================
+# Funções adicionais para auxiliar a Classe Alunos
+def func_verificarTexto(var, dic, num_car, nome_var):
+    if dic == 0:
+        # 0 — Verificação sem dicionário para texto
+        nome_verif = str(var).strip()
+        # Verifica se o nome está com letras alfanuméricas
+        if nome_verif.replace(" ", "").isalpha():
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"O {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            return False
+    elif dic == 1:
+        # 2 — Verificação com dicionário para texto
+        retirar_dic1 = {',': None, '.': None, ' ': None}
+        texto_verif = str(var).strip()
+        conversor = texto_verif.maketrans(retirar_dic1)
+        if texto_verif.translate(conversor).isalnum():
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"O {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            return False
+    elif dic == 2:
+        # 4 — Verificação com dicionário para data de nascimento
+        try:
+            formato_dmy = bool(datetime.strptime(var, "%d/%m/%Y"))
+        except ValueError:
+            formato_dmy = False
+        # Dicionário para retirar da data
+        retirar_dic3 = {' ': None, '-': None, '/': None}
+        data_verif = str(var).strip()
+        conversor = data_verif.maketrans(retirar_dic3)
+        if data_verif.translate(conversor).isnumeric() and len(
+                data_verif.translate(conversor)) == num_car and formato_dmy:
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"A {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            return False
+    elif dic == 3:
+        # 3 — Verificação com dicionário para número
+        retirar_dic2 = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
+        num_verif = str(var).strip()
+        conversor = num_verif.maketrans(retirar_dic2)
+        if num_verif.translate(conversor).isnumeric() and len(num_verif.translate(conversor)) == num_car:
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"O {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            return False
+    elif dic == 4:
+        # 1 — Verificação sem dicionário para número
+        num_verif = str(var).strip()
+        # Verifica se o nome está com letras alfanuméricas
+        if num_verif.replace(" ", "").isnumeric():
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"O {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
+            return False
+    else:
+        return False
+
+
 # 1- Classe Alunos
 class Aluno:
     # Classe para verificar se os dados do aluno estão completos
@@ -1106,15 +1157,7 @@ class Aluno:
         # --------------------------------------------------------------------------
         # 1-Verificação de textos
         # Verificação para o nome do aluno
-        nome_aluno_verif = str(self.nome_aluno).strip()  # strip()
-        # Verifica se o nome está com letras alfanuméricas
-        if nome_aluno_verif.replace(" ", "").isalpha():
-            nome_aluno_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O Nome do Aluno não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            nome_aluno_verif = False
+        nome_aluno_verif = func_verificarTexto(self.nome_aluno, 0, 0, "Nome do ALUNO")
         # --------------------------------------------------------------------------
         # Verificação para o nome do responsável, caso tenha um
         if self.resp == 0:
@@ -1122,146 +1165,40 @@ class Aluno:
             self.responsavel = "Sem Responsável"
             responsavel_verif = True
         else:
-            # Caso tenha responsável,
-            responsavel_verif = str(self.responsavel).strip()
-            # Verifica se o nome está com letra maiúscula em cada nome, se possui números e se todos os caracteres
-            # são alfabéticos
-            if responsavel_verif.replace(" ", "").isalpha():
-                responsavel_verif = True
-            else:
-                messagebox.showerror("Erro de entrada de dados",
-                                     "O Nome do Responsável não está no padrão certo!\n"
-                                     "Favor, revise esta caixa de texto.")
-                responsavel_verif = False
-                # --------------------------------------------------------------------------
-        # Verificação para o Professor
-        professor_verif = str(self.professor).strip()  # strip()
-        # Verifica se o nome está com letra maiúscula em cada nome
-        if professor_verif.replace(" ", "").isalpha():
-            professor_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O nome do PROFESSOR não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            professor_verif = False
-        # Dicionário com os caracteres para retirar (endereço e bairro)
-        retirar_dic1 = {',': None, '.': None, ' ': None}
-        # Verificação do endereço
-        endereco_verif = str(self.endereco).strip()
-        conversor = endereco_verif.maketrans(retirar_dic1)
-        if endereco_verif.translate(conversor).isalnum():
-            endereco_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O Endereço não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            endereco_verif = False
-        # Verificação do bairro
-        bairro_verif = str(self.bairro).strip()
-        conversor = bairro_verif.maketrans(retirar_dic1)
-        if bairro_verif.translate(conversor).isalpha():
-            bairro_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O Bairro não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            bairro_verif = False
+            # Caso tenha responsável
+            responsavel_verif = func_verificarTexto(self.responsavel, 0, 0, "Nome do RESPONSÁVEL")
         # --------------------------------------------------------------------------
-        # 2-Verificação de variáveis numéricas
-        # Dicionário com os caracteres para retirar (Todos os números)
-        retirar_num_dic = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
-
+        # Verificação para o Professor
+        professor_verif = func_verificarTexto(self.professor, 0, 0, "Nome do PROFESSOR")
+        # --------------------------------------------------------------------------
+        # Verificação do endereço
+        endereco_verif = func_verificarTexto(self.endereco, 1, 0, "ENDEREÇO")
+        # --------------------------------------------------------------------------
+        # Verificação do bairro
+        bairro_verif = func_verificarTexto(self.bairro, 1, 0, "BAIRRO")
+        # --------------------------------------------------------------------------
         # Verificação Data de Nascimento
-        try:
-            formato_dmy = bool(datetime.strptime(self.data_nasc, "%d/%m/%Y"))
-        except ValueError:
-            formato_dmy = False
-        data_nasc_verif = str(self.data_nasc).strip()
-        conversor = data_nasc_verif.maketrans(retirar_num_dic)
-        if data_nasc_verif.translate(conversor).isnumeric() and len(data_nasc_verif.translate(conversor)) == 8 and formato_dmy:
-            data_nasc_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "A Data de Nascimnto não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            data_nasc_verif = False
+        data_nasc_verif = func_verificarTexto(self.data_nasc, 2, 8, "DATA DE NASCIMENTO")
         # --------------------------------------------------------------------------
         # Verificação CPF
-        cpf_verif = str(self.cpf).strip()
-        conversor = cpf_verif.maketrans(retirar_num_dic)
-        if cpf_verif.translate(conversor).isnumeric() and len(cpf_verif.translate(conversor)) == 11:
-            cpf_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O CPF não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            cpf_verif = False
+        cpf_verif = func_verificarTexto(self.cpf, 3, 11, "CPF")
         # --------------------------------------------------------------------------
         # Verificação RG
-        rg_verif = str(self.rg).strip()
-        conversor = rg_verif.maketrans(retirar_num_dic)
-        if rg_verif.translate(conversor).isnumeric() and \
-                (len(rg_verif.translate(conversor)) <= 7 or len(rg_verif.translate(conversor)) <= 12):
-            rg_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O RG não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            rg_verif = False
+        rg_verif = func_verificarTexto(self.rg, 3, 7, "RG")
         # --------------------------------------------------------------------------
-        # Verificação do CEP
-        cep_verif = str(self.cep).strip()
-        conversor = cep_verif.maketrans(retirar_num_dic)
-        if cep_verif.translate(conversor).isnumeric() and len(cep_verif.translate(conversor)) == 8:
-            cep_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O CEP não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            cep_verif = False
+        cep_verif = func_verificarTexto(self.cep, 3, 8, "CEP")
         # --------------------------------------------------------------------------
         # Verificação do Telefone
-        tel_verif = str(self.fone).strip()
-        conversor = tel_verif.maketrans(retirar_num_dic)
-        if tel_verif.translate(conversor).isnumeric() and len(tel_verif.translate(conversor)) == 11:
-            tel_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O Telefone não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            tel_verif = False
+        tel_verif = func_verificarTexto(self.fone, 3, 11, "TELEFONE")
         # --------------------------------------------------------------------------
         # Verificação do número de sócio
-        soc_verif = str(self.socio).strip()
-        if soc_verif.isnumeric():
-            soc_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O número do Sócio não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            soc_verif = False
+        socio_verif = func_verificarTexto(self.fone, 3, 11, "SÓCIO")
         # --------------------------------------------------------------------------
-        # Verificação de Mensalidade
-        mensalidade_verif = str(self.valor_mensalidade).strip()
-        conversor = mensalidade_verif.maketrans(retirar_num_dic)
-        if mensalidade_verif.translate(conversor).isnumeric():
-            mensalidade_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O valor da Mensalidade não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            mensalidade_verif = False
+        # Verificação de Valor da Mensalidade
+        mensalidade_verif = func_verificarTexto(self.valor_mensalidade, 4, 0, "MENSALIDADE")
         # --------------------------------------------------------------------------
-        # Verificação de Valor da matrícula
-        matricula_verif = str(self.valor_matricula).strip()
-        conversor = matricula_verif.maketrans(retirar_num_dic)
-        if matricula_verif.translate(conversor).isnumeric():
-            matricula_verif = True
-        else:
-            messagebox.showerror("Erro de entrada de dados",
-                                 "O valor da Matrícula não está no padrão certo!\n"
-                                 "Favor, revise esta caixa de texto.")
-            matricula_verif = False
+        # Verificação de Valor da Matrícula
+        matricula_verif = func_verificarTexto(self.valor_matricula, 4, 0, "MATRÍCULA")
         # --------------------------------------------------------------------------
         # 3-Verificação das aulas (necessário para a modificação das infos)
         # Dicionário com os caracteres do clube
@@ -1308,7 +1245,7 @@ class Aluno:
         # ======================================================================
         # Retorna True se todas as respostas foram positivas
         if all([nome_aluno_verif, responsavel_verif, professor_verif, cpf_verif, rg_verif, endereco_verif, bairro_verif,
-                data_nasc_verif, cep_verif, tel_verif, soc_verif, mensalidade_verif, matricula_verif,
+                data_nasc_verif, cep_verif, tel_verif, socio_verif, mensalidade_verif, matricula_verif,
                 modalidade_verif, idades_verif, horarios_verif, dias_aulas_verif]):
             # Confirma se as informações estão corretas
             resposta_verificacao = messagebox.askquestion("Confirmar informações",
@@ -1346,19 +1283,13 @@ class Aluno:
                 # Atualiza a data de pagamento e a mensalidade paga
                 conn = sqlite3.connect('remo_data1.db')
                 c = conn.cursor()
-                c.execute('''UPDATE alunos SET
+                c.execute(f'''UPDATE alunos SET
                 
-                data_pagamento = :data_pgt,
-                valor_matricula = :valor_matricula,
-                mensalidade_paga = :mensalidade_paga
+                data_pagamento = :{data_hj},
+                valor_matricula = :{int(self.valor_matricula)},
+                mensalidade_paga = :{mensalidade_paga}
                 
-                WHERE CPF = :cpf''',
-                          {
-                              'data_pgt': data_hj,
-                              'valor_matricula': int(self.valor_matricula),
-                              'mensalidade_paga': mensalidade_paga,
-                              'cpf': int(self.cpf)
-                          })
+                WHERE CPF = :{int(self.cpf)}''')
                 conn.commit()
                 conn.close()
             else:
@@ -1427,12 +1358,12 @@ class Aluno:
         # Informações do aluno
         info_rec = ''
         info_rec += (
-                "Valor: R$ {} \n".format(str(int(self.valor_mensalidade) + int(self.valor_matricula))) +
-                "Aluno: {} \n".format(str(self.nome_aluno)) +
-                "Professor: {} \n".format(str(self.professor)) +
-                "Horário: {} \n".format(str(self.horario)) +
-                "Dias: {} \n".format(str(self.dias_das_aulas)) +
-                "Belém: {}".format(data_pagamento)
+                f"Valor: R$ {str(int(self.valor_mensalidade) + int(self.valor_matricula))} \n" +
+                f"Aluno: {str(self.nome_aluno)} \n" +
+                f"Professor: {str(self.professor)} \n" +
+                f"Horário: {str(self.horario)} \n" +
+                f"Dias: {str(self.dias_das_aulas)} \n" +
+                f"Belém: {data_pagamento}"
         )
         query_label = Label(frame_recibo, text=info_rec)
         query_label.grid(row=0, column=0)
