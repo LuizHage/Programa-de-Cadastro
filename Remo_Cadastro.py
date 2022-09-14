@@ -148,8 +148,8 @@ def bd_excel():
             i = 1
             for info in informacoes:
                 # Escreve nas linhas do Excel n°, Aluno, Turma, Atraso, dia, mês, mat, mens
-                aluno, turma, atraso, mat, mens = str(info[0]), str(info[12]) + '-' + str(info[13]),\
-                                                  ' ',  str(info[18]), str(info[19])
+                aluno, turma, atraso, mat, mens = str(info[0]), str(info[12]) + '-' + str(info[13]), \
+                                                  ' ', str(info[18]), str(info[19])
                 fin_page.append([i, aluno + '-' + turma, atraso, dia, mes, mat, mens])
                 i += 1
             # ------------------------------------------------------------------
@@ -226,6 +226,9 @@ def modificar_info(aluno, data_nasc, cpf, rg, sexo, responsavel,
 
 # ==============================================================================
 # ==============================================================================
+# Funções gerais do Programa
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Criando Classe da página inicial do programa
 class RootPrograma(Tk):
     def __init__(self):
@@ -264,9 +267,27 @@ class RootPrograma(Tk):
         self.pesquisa.grid(row=0, column=0, sticky=W, padx=183)
         self.pesquisa.insert(0, "Digite o número de CPF")
         self.pesquisa.configure(state='disabled')
+
         # ==============================================================================
         # Entrada de dados
         # Frame 1
+        # Funções gerais internos do Programa
+        # Fazer depois quem sabe ou trocar para o PySimpleGUI
+        '''def func_criar_labelEentry(frame, var_name, val_label, val_entry):
+            Label(frame, text="Nome do Aluno").grid(row=val_label[0],
+                                                    column=val_label[1],
+                                                    sticky=val_label[2],
+                                                    padx=val_label[3],
+                                                    pady=val_label[4],
+                                                    columnspan=val_label[5])
+            return Entry(frame, width=val_entry[0]), var_name.grid(row=val_entry[1], column=val_entry[2],
+                                                                   sticky=val_entry[3], padx=val_entry[4],
+                                                                   pady=val_entry[5], columnspan=val_entry[6])
+
+        self.nome_aluno = func_criar_labelEentry(self.frame1, self.nome_aluno, [0, 0, W, 0, 0, 1],
+                                                 [50, 0, 1, W, 0, 10, 5, 1])'''
+        # ==============================================================================
+
         Label(self.frame1, text="Nome do Aluno").grid(row=0, column=0, sticky=W)
         self.nome_aluno = Entry(self.frame1, width=50)
         self.nome_aluno.grid(row=0, column=1, sticky=W, padx=10, pady=5)
@@ -371,9 +392,9 @@ class RootPrograma(Tk):
         # Horarios
         self.horarios_dic = {
             'vazio': ' ',
-            'hidro': "8:00",
-            'polo': "8:00",
-            'baby': "8:20",
+            'hidro': ["8:00"],
+            'polo': ["8:00"],
+            'baby': ["8:20"],
             'natacao_infantil': ["9:00", "9:40", "10:20",
                                  "14:00", "14:40", "15:20",
                                  "16:00", "16:40", "17:20"],
@@ -466,80 +487,6 @@ class RootPrograma(Tk):
 
     # ==================================================================================================================
     # ==================================================================================================================
-    # Funções gerais do Programa
-    # 1- Limpar todas as caixas de texto
-    def func_limpar_texto(self):
-        # Limpa as caixas de texto
-        self.nome_aluno.delete(0, END)
-        self.data_nasc.delete(0, END)
-        self.responsavel.delete(0, END)
-        self.cpf.delete(0, END)
-        self.rg.delete(0, END)
-        # Retornar Responsável ao estado inicial
-        self.responsavel.configure(state='disabled')
-        self.endereco.delete(0, END)
-        self.cep.delete(0, END)
-        self.bairro.delete(0, END)
-        self.fone.delete(0, END)
-        # Retornar Sócio ao estado inicial
-        self.socio.delete(0, END)
-        self.socio.insert(0, "0")
-        self.socio.configure(state='disabled')
-        self.mensalidade.delete(0, END)
-        self.matricula.delete(0, END)
-        self.professor.delete(0, END)
-
-    # 2- Desabilitar todas as caixas de texto
-    def func_desabilitar_texto(self):
-        self.nome_aluno.configure(state='disabled')
-        self.data_nasc.configure(state='disabled')
-        self.sexo_drop.configure(state='disabled')
-        self.responsavel.configure(state='disabled')
-        self.cpf.configure(state='disabled')
-        self.rg.configure(state='disabled')
-        self.endereco.configure(state='disabled')
-        self.cep.configure(state='disabled')
-        self.bairro.configure(state='disabled')
-        self.fone.configure(state='disabled')
-        self.professor.configure(state='disabled')
-        self.mensalidade.configure(state='disabled')
-        self.matricula.configure(state='disabled')
-        # desabilita as caixas de opção restantes ...
-        self.mod_drop.configure(state='disabled')
-        self.idade_drop.configure(state='disabled')
-        # e as caixas de marcar e botões
-        self.r.configure(state='disabled')
-        self.s.configure(state='disabled')
-        self.b.configure(state='disabled')
-        Button(self.frame2, text="Confirmar", state='disabled').grid(row=0, column=6)
-
-    # 3- Habilitar todas as caixas de texto
-    def func_habilitar_texto(self):
-        # Habilita as outras caixas de texto
-        self.nome_aluno.configure(state='normal')
-        self.data_nasc.configure(state='normal')
-        self.sexo_drop.configure(state='normal')
-        self.endereco.configure(state='normal')
-        self.cpf.configure(state='normal')
-        self.rg.configure(state='normal')
-        self.cep.configure(state='normal')
-        self.bairro.configure(state='normal')
-        self.fone.configure(state='normal')
-        self.professor.configure(state='normal')
-        self.mensalidade.configure(state='normal')
-        self.matricula.configure(state='normal')
-        self.mod_drop.configure(state='normal')
-        self.idade_drop.configure(state='normal')
-        self.r.configure(state='normal')
-        self.s.configure(state='normal')
-        self.b.configure(state='normal')
-        # Retorna o valor da matrícula para o estado inicial
-        self.pesquisa.delete(0, END)
-        self.pesquisa.insert(0, "Digite o número de CPF")
-        self.pesquisa.configure(state='disabled')
-        # Reabilita o Botão de Contirmar Modalidade e Idade
-        Button(self.frame2, text="Confirmar", command=self.mod_idade).grid(row=0, column=6)
-
     # 4- Marcar a caixa 'sim' em responsável
     def caixa_responsavel(self):
         # global responsavel
@@ -570,14 +517,32 @@ class RootPrograma(Tk):
             self.pesquisa.delete(0, END)
             # Limpa e desabilita as caixas de texto
             self.comando_limpar()
-            self.func_desabilitar_texto()
+            caixas_texto_dis = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
+                                self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
+                                self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
+                                self.r, self.s, self.b]
+            for caixa in caixas_texto_dis:
+                caixa.configure(state='disabled')
+            Button(self.frame2, text="Confirmar", state='disabled').grid(row=0, column=6)
             # Deixar selecionado o botão de Mensalidade
             self.m.select()
             self.pesquisa.configure(state='normal')
             self.pesquisa.delete(0, END)
         else:
             # Retomar a Caixa de matrícula para o estado inicial
-            self.func_habilitar_texto()
+            caixas_texto_enable = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
+                                   self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
+                                   self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
+                                   self.r, self.s, self.b]
+            # Habilita as caixas de texto
+            for caixa in caixas_texto_enable:
+                caixa.configure(state='normal')
+
+            self.pesquisa.delete(0, END)
+            self.pesquisa.insert(0, "Digite o número de CPF")
+            self.pesquisa.configure(state='disabled')
+            # Reabilita o Botão de Contirmar Modalidade e Idade
+            Button(self.frame2, text="Confirmar", command=self.mod_idade).grid(row=0, column=6)
 
     # 7- Marcar a caixa 'sim' em Bolsista
     def caixa_bolsista(self):
@@ -608,14 +573,38 @@ class RootPrograma(Tk):
         # Caso Matrícula esteja selecionada
         if self.mat.get() == 1:
             # Habilitar texto e desselecionar a caixa
-            self.func_habilitar_texto()
+            caixas_texto_enable = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
+                                   self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
+                                   self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
+                                   self.r, self.s, self.b]
+            # Habilita as caixas de texto
+            for caixa in caixas_texto_enable:
+                caixa.configure(state='normal')
+
+            self.pesquisa.delete(0, END)
+            self.pesquisa.insert(0, "Digite o número de CPF")
+            self.pesquisa.configure(state='disabled')
+            # Reabilita o Botão de Contirmar Modalidade e Idade
+            Button(self.frame2, text="Confirmar", command=self.mod_idade).grid(row=0, column=6)
+            # Desceleciona a caixa de pesquesi
             self.m.deselect()
+
         # Colocar as caixas de Opção no estado inicial
         self.mensalidade.configure(state='normal')
-        self.mensalidade.delete(0, END)
+        # self.mensalidade.delete(0, END)
         self.matricula.configure(state='normal')
-        self.matricula.delete(0, END)
-        self.func_limpar_texto()
+        # self.matricula.delete(0, END)
+        caixas_texto = [self.nome_aluno, self.data_nasc, self.responsavel, self.cpf, self.rg, self.responsavel,
+                        self.endereco, self.cep, self.bairro, self.fone, self.socio,
+                        self.mensalidade, self.matricula, self.professor]
+        for caixa in caixas_texto:
+            caixa.delete(0, END)
+
+        # Retornar Responsável e Sócio ao estado inicial
+        self.responsavel.configure(state='disabled')
+        self.socio.insert(0, "0")
+        self.socio.configure(state='disabled')
+        # Retorna os OptionMenu
         self.sexo.set(self.sexualidade_list[0])
         self.mod.set(self.modalidades_dic["vazio"])
         self.idade.set(self.idades_dic["vazio"])
@@ -633,6 +622,17 @@ class RootPrograma(Tk):
 
     # ==============================================================================
     # Comandos de Botão do programa
+    # 0- Função auxiliar para o mod_idade
+    def hora_dia_OptMenu(self, faixa_etaria, frame):
+        # Horário
+        self.horario.set(self.horarios_dic[faixa_etaria][0])
+        self.horario_aula_drop = OptionMenu(frame, self.horario, *self.horarios_dic[faixa_etaria])
+        self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
+        # Dias das aulas
+        self.dia.set(self.dias_aulas_dic[faixa_etaria][0])
+        self.dia_aula_drop = OptionMenu(frame, self.dia, *self.dias_aulas_dic[faixa_etaria])
+        self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
+
     # 1- Confirmar Modalidade e Idade para gerar horários e dias
     def mod_idade(self):
         # Sumir os valores ou pegar a info de qual a tabela atual
@@ -657,342 +657,230 @@ class RootPrograma(Tk):
         else:
             if self.mod.get() == self.modalidades_dic["natação"]:
                 # Natação
-                if self.idade.get() == self.idades_dic["baby"]:  # Baby/Gorro Branco
-                    # Horário
-                    self.horario.set(self.horarios_dic["baby"])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, self.horarios_dic["baby"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    self.dia.set(self.dias_aulas_dic["baby"][0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *self.dias_aulas_dic["baby"])
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["amarelo"]:  # Amarelo
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_infantil"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario,
-                                                        *self.horarios_dic["natacao_infantil"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    self.dia.set(self.dias_aulas_dic["natacao_infantil"][0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *self.dias_aulas_dic["natacao_infantil"])
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["laranja"]:  # Infantil 5~11 Laranja
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_infantil"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario,
-                                                        *self.horarios_dic["natacao_infantil"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_inf = self.dias_aulas_dic["natacao_infantil"]
-                    self.dia.set(dias_aulas_inf[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_inf)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["verde"]:  # Infantil 5~11 Verde
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_infantil"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario,
-                                                        *self.horarios_dic["natacao_infantil"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_inf = self.dias_aulas_dic["natacao_infantil"]
-                    self.dia.set(dias_aulas_inf[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_inf)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["vermelho"]:  # Infantil 5~11 Vermelho
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_infantil"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario,
-                                                        *self.horarios_dic["natacao_infantil"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_inf = self.dias_aulas_dic["natacao_infantil"]
-                    self.dia.set(dias_aulas_inf[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_inf)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["infanto"]:  # Infanto 12~18
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_infanto"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario,
-                                                        *self.horarios_dic["natacao_infanto"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_infanto = self.dias_aulas_dic["natacao_infanto"]
-                    self.dia.set(dias_aulas_infanto[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_infanto)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["Pre"]:  # Pré-equipe
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_Pre"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, *self.horarios_dic["natacao_Pre"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_adt = self.dias_aulas_dic["natacao_Pre"]
-                    self.dia.set(dias_aulas_adt[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_adt)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["equipe"]:  # Equipe
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_equipe"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, *self.horarios_dic["natacao_equipe"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_adt = self.dias_aulas_dic["natacao_equipe"]
-                    self.dia.set(dias_aulas_adt[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_adt)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
-                elif self.idade.get() == self.idades_dic["adulto"]:  # Adulto 18+
-                    # Horário
-                    self.horario.set(self.horarios_dic["natacao_adulto"][0])
-                    self.horario_aula_drop = OptionMenu(self.frame2, self.horario, *self.horarios_dic["natacao_adulto"])
-                    self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                    # Dias das aulas
-                    dias_aulas_adt = self.dias_aulas_dic["natacao_adulto"]
-                    self.dia.set(dias_aulas_adt[0])
-                    self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_adt)
-                    self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
+                if self.idade.get() == self.idades_dic["baby"]:
+                    # Baby/Gorro Branco
+                    self.hora_dia_OptMenu("baby", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["amarelo"]:
+                    # Amarelo
+                    self.hora_dia_OptMenu("natacao_infantil", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["laranja"] or \
+                        self.idade.get() == self.idades_dic["verde"] or \
+                        self.idade.get() == self.idades_dic["vermelho"]:
+                    # Infantil 5~11 Laranja / Verde / Vermelho
+                    self.hora_dia_OptMenu("natacao_infantil", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["infanto"]:
+                    # Infanto 12~18
+                    self.hora_dia_OptMenu("natacao_infanto", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["Pre"]:
+                    # Pré-equipe
+                    self.hora_dia_OptMenu("natacao_Pre", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["equipe"]:
+                    # Equipe
+                    self.hora_dia_OptMenu("natacao_equipe", self.frame2)
+                # ------------------------------------------------------------------------------
+                elif self.idade.get() == self.idades_dic["adulto"]:
+                    # Adulto 18+
+                    self.hora_dia_OptMenu("natacao_adulto", self.frame2)
+                # ------------------------------------------------------------------------------
             elif self.mod.get() == self.modalidades_dic["hidro"]:
                 # Hidroginástica
-                # Horário
-                self.horario.set(self.horarios_dic["hidro"])
-                self.horario_aula_drop = OptionMenu(self.frame2, self.horario, self.horarios_dic["hidro"])
-                self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                # Dias das aulas
-                dias_aulas_hidro = self.dias_aulas_dic["hidro"]
-                self.dia.set(dias_aulas_hidro[0])
-                self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_hidro)
-                self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-
+                self.hora_dia_OptMenu("hidro", self.frame2)
+            # ------------------------------------------------------------------------------
             elif self.mod.get() == self.modalidades_dic["polo"]:
                 # Polo-aquático
-                # Horário
-                self.horario.set(self.horarios_dic["polo"])
-                self.horario_aula_drop = OptionMenu(self.frame2, self.horario, self.horarios_dic["polo"])
-                self.horario_aula_drop.grid(row=1, column=1, sticky=W, padx=5)
-                # Dias das aulas
-                dias_aulas_polo = self.dias_aulas_dic["polo"]
-                self.dia.set(dias_aulas_polo[0])
-                self.dia_aula_drop = OptionMenu(self.frame2, self.dia, *dias_aulas_polo)
-                self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
-        # Sinalizador aqui, nesta identação
+                self.hora_dia_OptMenu("polo", self.frame2)
+            # ------------------------------------------------------------------------------
 
     # 2- Botão de Confirmar os dados no final do Programa
+    # Transfrmar em Classe também
     # noinspection PyGlobalUndefined
     def confirmacao_final(self):
         if self.mat.get() == 1:
-            # Criando uma segunda janela para mostrar os dados do aluno cadastrado
-            global infos, aluno_matriculado
-            infos = Toplevel()
-            infos.title('Informações do Aluno')
+            try:
+                # Criando uma segunda janela para mostrar os dados do aluno cadastrado
+                global infos, aluno_matriculado
+                infos = Toplevel()
+                infos.title('Informações do Aluno')
 
-            # create a notebook
-            notebook = ttk.Notebook(infos)
-            notebook.pack(pady=15)
+                # create a notebook
+                notebook = ttk.Notebook(infos)
+                notebook.pack(pady=15)
 
-            # create frames
-            frame_infos = ttk.Frame(notebook, width=400, height=280)
-            frame_mod = ttk.Frame(notebook, width=400, height=280)
+                # create frames
+                frame_infos = ttk.Frame(notebook, width=400, height=280)
+                frame_mod = ttk.Frame(notebook, width=400, height=280)
 
-            frame_infos.pack(fill='both', expand=True)
-            frame_mod.pack(fill='both', expand=True)
+                frame_infos.pack(fill='both', expand=True)
+                frame_mod.pack(fill='both', expand=True)
 
-            # add frames to notebook
-            notebook.add(frame_infos, text='Informações Gerais')
-            notebook.add(frame_mod, text='Modificar Informações')
+                # add frames to notebook
+                notebook.add(frame_infos, text='Informações Gerais')
+                notebook.add(frame_mod, text='Modificar Informações')
 
-            # --------------------------------------------------------------------------------------------------------------
-            # Informações gerais de matrícula
-            Label(frame_infos, text="Nome do Aluno:").grid(row=0, column=0, sticky=E)
-            Label(frame_infos, text="Data de nascimento:").grid(row=1, column=0, sticky=E)
-            Label(frame_infos, text="CPF:").grid(row=2, column=0, sticky=E)
-            Label(frame_infos, text="RG:").grid(row=3, column=0, sticky=E)
-            Label(frame_infos, text="Sexo:").grid(row=4, column=0, sticky=E)
-            Label(frame_infos, text="Responsável:").grid(row=5, column=0, sticky=E)
-            Label(frame_infos, text="Endereço:").grid(row=6, column=0, sticky=E)
-            Label(frame_infos, text="CEP:").grid(row=7, column=0, sticky=E)
-            Label(frame_infos, text="Bairro:").grid(row=8, column=0, sticky=E)
-            Label(frame_infos, text="Telefone:").grid(row=9, column=0, sticky=E)
-            Label(frame_infos, text="Sócio:").grid(row=10, column=0, sticky=E)
+                # --------------------------------------------------------------------------------------------------------------
+                # Informações gerais de matrícula
+                labels = ["Nome do Aluno", "Data de nascimento", "CPF", "RG", "Sexo", "Responsável", "Endereço", "CEP",
+                          "Bairro", "Telefone", "Sócio", "\t Modalidade", "Faixa Etária", "Horário das Aulas",
+                          "Dias das Aulas",
+                          "Professor", "Bolsista", "Valor da Mensalidade", "Mensalidade paga?"]
+                i = 0
+                for item in labels:
+                    Label(frame_infos, text=f"{item}:").grid(row=i, column=0, sticky=E)
+                    i += 1
 
-            # --------------------------------------------------------------------------------------------------------------
-            # Informações da aula
-            Label(frame_infos, text="\t Modalidade:").grid(row=11, column=0, sticky=E)
-            Label(frame_infos, text="Faixa Etária:").grid(row=12, column=0, sticky=E)
-            Label(frame_infos, text="Horário das Aulas:").grid(row=13, column=0, sticky=E)
-            Label(frame_infos, text="Dias das Aulas:").grid(row=14, column=0, sticky=E)
-            Label(frame_infos, text="Professor:").grid(row=15, column=0, sticky=E)
-            Label(frame_infos, text="Bolsista:").grid(row=16, column=0, sticky=E)
-            Label(frame_infos, text="Valor da Mensalidade:").grid(row=17, column=0, sticky=E)
-            Label(frame_infos, text="Mensalidade paga?").grid(row=18, column=0, sticky=E)
+                # Criar uma base de dados ou se conectar a uma pré-existente
+                conn = sqlite3.connect('remo_data1.db')
+                c = conn.cursor()
+                # Pesquisar os dados no BD
+                c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
+                # Pegar todas as infos
+                informacoes = c.fetchall()
+                cpf_num = ''
+                for info in informacoes:
+                    # Informações do aluno
+                    Label(frame_infos, text=info[0]).grid(row=0, column=1, sticky=W)
+                    Label(frame_infos, text=info[1]).grid(row=1, column=1, sticky=W)
+                    cpf_num = info[2]
+                    while len(str(cpf_num)) < 11:
+                        cpf_num = '0' + str(cpf_num)
+                    Label(frame_infos, text=cpf_num).grid(row=2, column=1, sticky=W)
+                    Label(frame_infos, text=info[3]).grid(row=3, column=1, sticky=W)
+                    Label(frame_infos, text=info[4]).grid(row=4, column=1, sticky=W)
+                    Label(frame_infos, text=info[5]).grid(row=5, column=1, sticky=W)
+                    Label(frame_infos, text=info[6]).grid(row=6, column=1, sticky=W)
+                    Label(frame_infos, text=info[7]).grid(row=7, column=1, sticky=W)
+                    Label(frame_infos, text=info[8]).grid(row=8, column=1, sticky=W)
+                    Label(frame_infos, text=info[9]).grid(row=9, column=1, sticky=W)
+                    # Sócio (0/1)
+                    Label(frame_infos, text=info[10]).grid(row=10, column=1, sticky=W)
+                    # Aulas
+                    Label(frame_infos, text=info[11]).grid(row=11, column=1, sticky=W)
+                    Label(frame_infos, text=info[12]).grid(row=12, column=1, sticky=W)
+                    Label(frame_infos, text=info[13]).grid(row=13, column=1, sticky=W)
+                    Label(frame_infos, text=info[14]).grid(row=14, column=1, sticky=W)
+                    Label(frame_infos, text=info[15]).grid(row=15, column=1, sticky=W)
+                    Label(frame_infos, text=info[17]).grid(row=16, column=1, sticky=W)
+                    Label(frame_infos, text=info[19]).grid(row=17, column=1, sticky=W)
+                    Label(frame_infos, text=info[20]).grid(row=18, column=1, sticky=W)
+                    # ----------------------------------------------------------------------------------------------------------
+                    aluno_matriculado = Aluno(info[0], info[1], info[2], info[3], info[4], 1, info[5], info[6], info[8],
+                                              info[7], info[9], info[10], 1, info[11], info[12], info[13], info[14],
+                                              info[15], info[17], 0, info[19])
+                # Commit
+                conn.commit()
+                # Fechar
+                conn.close()
+                # --------------------------------------------------------------------------------------------------------------
+                Button(frame_infos, text='Gerar Recibo', command=aluno_matriculado.recibo).grid(row=19, column=0, padx=10,
+                                                                                                pady=10, sticky=W,
+                                                                                                columnspan=2)
+                # --------------------------------------------------------------------------------------------------------------
+                # --------------------------------------------------------------------------------------------------------------
+                # Frame - Modificar Informações
+                labels = ["Nome do Aluno", "Data de nascimento", "CPF", "RG", "Sexo", "Responsável", "Endereço", "CEP",
+                          "Bairro", "Telefone", "Sócio", "\t Modalidade", "Faixa Etária", "Horário das Aulas",
+                          "Dias das Aulas",
+                          "Professor", "Bolsista", "Valor da Mensalidade", "Mensalidade paga?"]
+                i = 0
+                for item in labels:
+                    Label(frame_mod, text=f"{item}:").grid(row=i, column=0, sticky=E)
+                    i += 1
 
-            # Criar uma base de dados ou se conectar a uma pré-existente
-            conn = sqlite3.connect('remo_data1.db')
-            c = conn.cursor()
-            # Pesquisar os dados no BD
-            c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
-            # Pegar todas as infos
-            informacoes = c.fetchall()
-            cpf_num = ''
-            for info in informacoes:
-                # Informações do aluno
-                Label(frame_infos, text=info[0]).grid(row=0, column=1, sticky=W)
-                Label(frame_infos, text=info[1]).grid(row=1, column=1, sticky=W)
-                cpf_num = info[2]
-                while len(str(cpf_num)) < 11:
-                    cpf_num = '0' + str(cpf_num)
-                Label(frame_infos, text=cpf_num).grid(row=2, column=1, sticky=W)
-                Label(frame_infos, text=info[3]).grid(row=3, column=1, sticky=W)
-                Label(frame_infos, text=info[4]).grid(row=4, column=1, sticky=W)
-                Label(frame_infos, text=info[5]).grid(row=5, column=1, sticky=W)
-                Label(frame_infos, text=info[6]).grid(row=6, column=1, sticky=W)
-                Label(frame_infos, text=info[7]).grid(row=7, column=1, sticky=W)
-                Label(frame_infos, text=info[8]).grid(row=8, column=1, sticky=W)
-                Label(frame_infos, text=info[9]).grid(row=9, column=1, sticky=W)
-                # Sócio (0/1)
-                Label(frame_infos, text=info[10]).grid(row=10, column=1, sticky=W)
-                # Aulas
-                Label(frame_infos, text=info[11]).grid(row=11, column=1, sticky=W)
-                Label(frame_infos, text=info[12]).grid(row=12, column=1, sticky=W)
-                Label(frame_infos, text=info[13]).grid(row=13, column=1, sticky=W)
-                Label(frame_infos, text=info[14]).grid(row=14, column=1, sticky=W)
-                Label(frame_infos, text=info[15]).grid(row=15, column=1, sticky=W)
-                Label(frame_infos, text=info[17]).grid(row=16, column=1, sticky=W)
-                Label(frame_infos, text=info[19]).grid(row=17, column=1, sticky=W)
-                Label(frame_infos, text=info[20]).grid(row=18, column=1, sticky=W)
-                # ----------------------------------------------------------------------------------------------------------
-                aluno_matriculado = Aluno(info[0], info[1], info[2], info[3], info[4], 1, info[5], info[6], info[8],
-                                          info[7], info[9], info[10], 1, info[11], info[12], info[13], info[14],
-                                          info[15], info[17], 0, info[19])
-            # Commit
-            conn.commit()
-            # Fechar
-            conn.close()
-            # --------------------------------------------------------------------------------------------------------------
-            Button(frame_infos, text='Gerar Recibo', command=aluno_matriculado.recibo).grid(row=19, column=0, padx=10,
-                                                                                            pady=10, sticky=W,
-                                                                                            columnspan=2)
-            # --------------------------------------------------------------------------------------------------------------
-            # --------------------------------------------------------------------------------------------------------------
-            # Frame - Modificar Informações
-            Label(frame_mod, text="Nome do Aluno:").grid(row=0, column=0, sticky=E)
-            Label(frame_mod, text="Data de nascimento:").grid(row=1, column=0, sticky=E)
-            Label(frame_mod, text="CPF:").grid(row=2, column=0, sticky=E)
-            Label(frame_mod, text="RG:").grid(row=3, column=0, sticky=E)
-            Label(frame_mod, text="Sexo:").grid(row=4, column=0, sticky=E)
-            Label(frame_mod, text="Responsável:").grid(row=5, column=0, sticky=E)
-            Label(frame_mod, text="Endereço:").grid(row=6, column=0, sticky=E)
-            Label(frame_mod, text="CEP:").grid(row=7, column=0, sticky=E)
-            Label(frame_mod, text="Bairro:").grid(row=8, column=0, sticky=E)
-            Label(frame_mod, text="Telefone:").grid(row=9, column=0, sticky=E)
-            Label(frame_mod, text="Sócio:").grid(row=10, column=0, sticky=E)
+                nome_aluno_editor = Entry(frame_mod)
+                nome_aluno_editor.grid(row=0, column=1, sticky=W)
+                data_nasc_editor = Entry(frame_mod)
+                data_nasc_editor.grid(row=1, column=1, sticky=W)
+                rg_editor = Entry(frame_mod)
+                rg_editor.grid(row=3, column=1, sticky=W)
+                sexo_editor = Entry(frame_mod)
+                sexo_editor.grid(row=4, column=1, sticky=W)
+                responsavel_editor = Entry(frame_mod)
+                responsavel_editor.grid(row=5, column=1, sticky=W)
+                endereco_editor = Entry(frame_mod)
+                endereco_editor.grid(row=6, column=1, sticky=W)
+                cep_editor = Entry(frame_mod)
+                cep_editor.grid(row=7, column=1, sticky=W)
+                bairro_editor = Entry(frame_mod)
+                bairro_editor.grid(row=8, column=1, sticky=W)
+                fone_editor = Entry(frame_mod)
+                fone_editor.grid(row=9, column=1, sticky=W)
+                socio_editor = Entry(frame_mod)
+                socio_editor.grid(row=10, column=1, sticky=W)
 
-            # --------------------------------------------------------------------------------------------------------------
-            # Informações da aula
-            Label(frame_mod, text="\t Modalidade:").grid(row=11, column=0, sticky=E)
-            Label(frame_mod, text="Faixa Etária:").grid(row=12, column=0, sticky=E)
-            Label(frame_mod, text="Horário das Aulas:").grid(row=13, column=0, sticky=E)
-            Label(frame_mod, text="Dias das Aulas:").grid(row=14, column=0, sticky=E)
-            Label(frame_mod, text="Professor:").grid(row=15, column=0, sticky=E)
-            Label(frame_mod, text="Bolsista:").grid(row=16, column=0, sticky=E)
-            Label(frame_mod, text="Valor da Mensalidade:").grid(row=17, column=0, sticky=E)
-            Label(frame_mod, text="Mensalidade paga?").grid(row=18, column=0, sticky=E)
+                modalidade_editor = Entry(frame_mod)
+                modalidade_editor.grid(row=11, column=1, sticky=W)
+                faixa_editor = Entry(frame_mod)
+                faixa_editor.grid(row=12, column=1, sticky=W)
+                horario_editor = Entry(frame_mod)
+                horario_editor.grid(row=13, column=1, sticky=W)
+                dia_editor = Entry(frame_mod)
+                dia_editor.grid(row=14, column=1, sticky=W)
 
-            nome_aluno_editor = Entry(frame_mod)
-            nome_aluno_editor.grid(row=0, column=1, sticky=W)
-            data_nasc_editor = Entry(frame_mod)
-            data_nasc_editor.grid(row=1, column=1, sticky=W)
-            rg_editor = Entry(frame_mod)
-            rg_editor.grid(row=3, column=1, sticky=W)
-            sexo_editor = Entry(frame_mod)
-            sexo_editor.grid(row=4, column=1, sticky=W)
-            responsavel_editor = Entry(frame_mod)
-            responsavel_editor.grid(row=5, column=1, sticky=W)
-            endereco_editor = Entry(frame_mod)
-            endereco_editor.grid(row=6, column=1, sticky=W)
-            cep_editor = Entry(frame_mod)
-            cep_editor.grid(row=7, column=1, sticky=W)
-            bairro_editor = Entry(frame_mod)
-            bairro_editor.grid(row=8, column=1, sticky=W)
-            fone_editor = Entry(frame_mod)
-            fone_editor.grid(row=9, column=1, sticky=W)
-            socio_editor = Entry(frame_mod)
-            socio_editor.grid(row=10, column=1, sticky=W)
+                professor_editor = Entry(frame_mod)
+                professor_editor.grid(row=15, column=1, sticky=W)
+                bolsa_editor = Entry(frame_mod)
+                bolsa_editor.grid(row=16, column=1, sticky=W)
+                valor_editor = Entry(frame_mod)
+                valor_editor.grid(row=17, column=1, sticky=W)
+                mensalidadePaga_editor = Entry(frame_mod)
+                mensalidadePaga_editor.grid(row=18, column=1, sticky=W)
 
-            modalidade_editor = Entry(frame_mod)
-            modalidade_editor.grid(row=11, column=1, sticky=W)
-            faixa_editor = Entry(frame_mod)
-            faixa_editor.grid(row=12, column=1, sticky=W)
-            horario_editor = Entry(frame_mod)
-            horario_editor.grid(row=13, column=1, sticky=W)
-            dia_editor = Entry(frame_mod)
-            dia_editor.grid(row=14, column=1, sticky=W)
-
-            professor_editor = Entry(frame_mod)
-            professor_editor.grid(row=15, column=1, sticky=W)
-            bolsa_editor = Entry(frame_mod)
-            bolsa_editor.grid(row=16, column=1, sticky=W)
-            valor_editor = Entry(frame_mod)
-            valor_editor.grid(row=17, column=1, sticky=W)
-            mensalidadePaga_editor = Entry(frame_mod)
-            mensalidadePaga_editor.grid(row=18, column=1, sticky=W)
-
-            # Criar uma base de dados ou se conectar a uma pré-existente
-            conn = sqlite3.connect('remo_data1.db')
-            c = conn.cursor()
-            # Pesquisar os dados no BD
-            c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
-            # Pegar todas as infos
-            informacoes = c.fetchall()
-            for info in informacoes:
-                # Informações do aluno
-                nome_aluno_editor.insert(0, info[0])
-                data_nasc_editor.insert(0, info[1])
-                Label(frame_mod, text=cpf_num).grid(row=2, column=1, sticky=W)
-                rg_editor.insert(0, info[3])
-                sexo_editor.insert(0, info[4])
-                responsavel_editor.insert(0, info[5])
-                endereco_editor.insert(0, info[6])
-                cep_editor.insert(0, info[7])
-                bairro_editor.insert(0, info[8])
-                fone_editor.insert(0, info[9])
-                # Sócio (0/1)
-                socio_editor.insert(0, info[10])
-                modalidade_editor.insert(0, info[11])
-                faixa_editor.insert(0, info[12])
-                horario_editor.insert(0, info[13])
-                dia_editor.insert(0, info[14])
-                professor_editor.insert(0, info[15])
-                bolsa_editor.insert(0, info[17])
-                valor_matricula = info[18]
-                valor_editor.insert(0, info[19])
-                mensalidadePaga_editor.insert(0, info[20])
-
-            # Commit
-            conn.commit()
-            # Fechar
-            conn.close()
-            # --------------------------------------------------------------------------------------------------------------
-            Button(frame_mod, text='Modificar',
-                   command=lambda: modificar_info(nome_aluno_editor.get(), data_nasc_editor.get(),
-                                                  self.pesquisa.get(),
-                                                  rg_editor.get(), sexo_editor.get(), responsavel_editor.get(),
-                                                  endereco_editor.get(), cep_editor.get(), bairro_editor.get(),
-                                                  fone_editor.get(), socio_editor.get(), modalidade_editor.get(),
-                                                  faixa_editor.get(), horario_editor.get(), dia_editor.get(),
-                                                  professor_editor.get(), bolsa_editor.get(),
-                                                  valor_matricula, valor_editor.get(),
-                                                  mensalidadePaga_editor.get())).grid(row=19, column=0, padx=10,
-                                                                                      pady=10,
-                                                                                      sticky=W, columnspan=2)
-
+                # Criar uma base de dados ou se conectar a uma pré-existente
+                conn = sqlite3.connect('remo_data1.db')
+                c = conn.cursor()
+                # Pesquisar os dados no BD
+                c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
+                # Pegar todas as infos
+                informacoes = c.fetchall()
+                for info in informacoes:
+                    # Informações do aluno
+                    nome_aluno_editor.insert(0, info[0])
+                    data_nasc_editor.insert(0, info[1])
+                    Label(frame_mod, text=cpf_num).grid(row=2, column=1, sticky=W)
+                    rg_editor.insert(0, info[3])
+                    sexo_editor.insert(0, info[4])
+                    responsavel_editor.insert(0, info[5])
+                    endereco_editor.insert(0, info[6])
+                    cep_editor.insert(0, info[7])
+                    bairro_editor.insert(0, info[8])
+                    fone_editor.insert(0, info[9])
+                    # Sócio (0/1)
+                    socio_editor.insert(0, info[10])
+                    modalidade_editor.insert(0, info[11])
+                    faixa_editor.insert(0, info[12])
+                    horario_editor.insert(0, info[13])
+                    dia_editor.insert(0, info[14])
+                    professor_editor.insert(0, info[15])
+                    bolsa_editor.insert(0, info[17])
+                    valor_matricula = info[18]
+                    valor_editor.insert(0, info[19])
+                    mensalidadePaga_editor.insert(0, info[20])
+                # Commit
+                conn.commit()
+                # Fechar
+                conn.close()
+                # ------------------------------------------------------------------------------------------------------
+                Button(frame_mod, text='Modificar',
+                       command=lambda: modificar_info(nome_aluno_editor.get(), data_nasc_editor.get(),
+                                                      self.pesquisa.get(),
+                                                      rg_editor.get(), sexo_editor.get(), responsavel_editor.get(),
+                                                      endereco_editor.get(), cep_editor.get(), bairro_editor.get(),
+                                                      fone_editor.get(), socio_editor.get(), modalidade_editor.get(),
+                                                      faixa_editor.get(), horario_editor.get(), dia_editor.get(),
+                                                      professor_editor.get(), bolsa_editor.get(),
+                                                      valor_matricula, valor_editor.get(),
+                                                      mensalidadePaga_editor.get())).grid(row=19, column=0, padx=10,
+                                                                                          pady=10,
+                                                                                          sticky=W, columnspan=2)
+            except sqlite3.OperationalError:
+                infos.destroy()
+                messagebox.showerror("Erro na consulta", "CPF incorreto ou incompleto.")
+            # ------------------------------------------------------------------------------------------------------
         else:
             # horários de manhã
             manha = ["6:00", "7:00", "8:00", "9:00", "9:40", "10:00", "10:20", "11:00", "12:00", "13:00"]
@@ -1023,12 +911,10 @@ class RootPrograma(Tk):
                     aluno_registrado = Aluno(self.nome_aluno.get(), self.data_nasc.get(), self.cpf.get(), self.rg.get(),
                                              self.sexo.get(), self.resp.get(), self.responsavel.get(),
                                              self.endereco.get(), self.bairro.get(), self.cep.get(), self.fone.get(),
-                                             self.socio.get(),
-                                             self.mat.get(),
+                                             self.socio.get(), self.mat.get(),
                                              self.mod.get(), self.idade.get(), self.horario.get(), self.dia.get(),
                                              self.professor.get(), self.bolsista.get(), self.matricula.get(),
                                              self.mensalidade.get())
-
                     # Envia os dados para a verificação e BD
                     aluno_registrado.enviar_dados()
 
@@ -1039,7 +925,7 @@ def func_verificarTexto(var, dic, num_car, nome_var):
     if dic == 0:
         # 0 — Verificação sem dicionário para texto
         nome_verif = str(var).strip()
-        # Verifica se o nome está com letras alfanuméricas
+        # Verifica se o nome está com apenas letras
         if nome_verif.replace(" ", "").isalpha():
             return True
         else:
@@ -1048,7 +934,7 @@ def func_verificarTexto(var, dic, num_car, nome_var):
                                  "Favor, revise esta caixa de texto.")
             return False
     elif dic == 1:
-        # 2 — Verificação com dicionário para texto
+        # 1 — Verificação com dicionário para texto
         retirar_dic1 = {',': None, '.': None, ' ': None}
         texto_verif = str(var).strip()
         conversor = texto_verif.maketrans(retirar_dic1)
@@ -1060,7 +946,7 @@ def func_verificarTexto(var, dic, num_car, nome_var):
                                  "Favor, revise esta caixa de texto.")
             return False
     elif dic == 2:
-        # 4 — Verificação com dicionário para data de nascimento
+        # 2 — Verificação com dicionário para data de nascimento
         try:
             formato_dmy = bool(datetime.strptime(var, "%d/%m/%Y"))
         except ValueError:
@@ -1082,17 +968,21 @@ def func_verificarTexto(var, dic, num_car, nome_var):
         retirar_dic2 = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
         num_verif = str(var).strip()
         conversor = num_verif.maketrans(retirar_dic2)
-        if num_verif.translate(conversor).isnumeric() and len(num_verif.translate(conversor)) == num_car:
+        if type(num_car) == int and num_verif.translate(conversor).isnumeric() and \
+                len(num_verif.translate(conversor)) == num_car:
+            return True
+        elif type(num_car) == list and num_verif.translate(conversor).isnumeric() and (
+                    num_car[0] <= len(num_verif.translate(conversor)) <= num_car[1]):
             return True
         else:
             messagebox.showerror("Erro de entrada de dados",
                                  f"O {nome_var} não está no padrão certo!\n"
                                  "Favor, revise esta caixa de texto.")
-            return False
+        return False
     elif dic == 4:
-        # 1 — Verificação sem dicionário para número
+        # 4 — Verificação sem dicionário para número
         num_verif = str(var).strip()
-        # Verifica se o nome está com letras alfanuméricas
+        # Verifica se o nome está com números
         if num_verif.replace(" ", "").isnumeric():
             return True
         else:
@@ -1100,6 +990,16 @@ def func_verificarTexto(var, dic, num_car, nome_var):
                                  f"O {nome_var} não está no padrão certo!\n"
                                  "Favor, revise esta caixa de texto.")
             return False
+    elif dic == 5:
+        # 5 — Verificação sem dicionário para texto e número
+        num_verif = str(var).strip()
+        # Verifica se o nome está com letras alfanuméricas
+        if num_verif.replace(" ", "").isalnum():
+            return True
+        else:
+            messagebox.showerror("Erro de entrada de dados",
+                                 f"O {nome_var} não está no padrão certo!\n"
+                                 "Favor, revise esta caixa de texto.")
     else:
         return False
 
@@ -1184,7 +1084,7 @@ class Aluno:
         cpf_verif = func_verificarTexto(self.cpf, 3, 11, "CPF")
         # --------------------------------------------------------------------------
         # Verificação RG
-        rg_verif = func_verificarTexto(self.rg, 3, 7, "RG")
+        rg_verif = func_verificarTexto(self.rg, 3, [6, 13], "RG")
         # --------------------------------------------------------------------------
         cep_verif = func_verificarTexto(self.cep, 3, 8, "CEP")
         # --------------------------------------------------------------------------
@@ -1192,7 +1092,7 @@ class Aluno:
         tel_verif = func_verificarTexto(self.fone, 3, 11, "TELEFONE")
         # --------------------------------------------------------------------------
         # Verificação do número de sócio
-        socio_verif = func_verificarTexto(self.fone, 3, 11, "SÓCIO")
+        socio_verif = func_verificarTexto(self.fone, 5, 0, "SÓCIO")
         # --------------------------------------------------------------------------
         # Verificação de Valor da Mensalidade
         mensalidade_verif = func_verificarTexto(self.valor_mensalidade, 4, 0, "MENSALIDADE")
@@ -1371,6 +1271,5 @@ class Aluno:
         # Fechar página
         fechar_btn = Button(recibo, text="Fechar", command=recibo.destroy)
         fechar_btn.grid(row=1, column=0)
-
 # ======================================================================================================================
 # ======================================================================================================================
