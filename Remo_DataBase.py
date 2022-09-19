@@ -25,7 +25,8 @@ def BD_criar_BancoDeDados():
         CEP integer,
         bairro text,
         telefone integer,
-        socio integer,              
+        socio integer, 
+                     
         modalidade text,
         idade text,
         horario_aula text,
@@ -36,6 +37,7 @@ def BD_criar_BancoDeDados():
         valor_matricula integer,
         valor_mensalidade integer,
         mensalidade_paga text,
+        
         data_pagamento text
         )""")
 
@@ -158,6 +160,4 @@ def BD_adicionando_alunos():
 BD_adicionando_logins()
 # BD_modificando_alunos()
 # BD_adicionando_alunos()
-
-# professor_verif.istitle()
 
