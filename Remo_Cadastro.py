@@ -4,81 +4,14 @@ Created on Wed May 18 08:50:10 2022
 @author: luiz_
 """
 
+import Func_Cadastro
+
 import sqlite3
-import openpyxl
-from os import path
-from datetime import datetime
 from tkinter import IntVar, Checkbutton, W, E
 from tkinter import LabelFrame, Toplevel
 from tkinter import OptionMenu, StringVar, messagebox
 from tkinter import Tk, Entry, Label, Button, END
 from tkinter import ttk
-
-
-# Funções auxiliares dos programas principais
-# ======================================================================================================================
-# ======================================================================================================================
-# 1- Função para verificar se existe o arquivo com os dados do sistema
-def file_exist(file_name):
-    if path.isfile(file_name):
-        return True
-    else:
-        return False
-
-
-# 2- Função Data e Hora de Hoje
-def data_hora():
-    data_e_hora_atuais = datetime.now()
-    data = data_e_hora_atuais.strftime('%d/%m/%Y')
-    return data, data_e_hora_atuais.day, data_e_hora_atuais.month
-
-
-# 3- Função que gera a folha de cálculo do financeiro
-def bd_excel():
-    """Cria uma planilha do Excel com base nos dados do BD de hoje"""
-    # Mensagem para perguntar sobre gerar Excel
-    resposta = messagebox.askquestion("Confirmar informações",
-                                      "Um arquivo Excel sobre a movimentação financeira será gerado E O ANTIGO SERÁ "
-                                      "APAGADO.\n"
-                                      "Você confirma estas informações?")
-    if resposta == 'yes':
-        try:
-            # Cria uma Planilha no Excel
-            book = openpyxl.Workbook()
-            # Cria uma página
-            book.create_sheet('Financeiro')
-            # Selecionar uma página
-            fin_page = book['Financeiro']
-            fin_page.append(['n°', 'NOME', 'TURMA', 'ATRASO', 'DIA', 'MÊS', 'MATRICULA', 'MENSALIDADE'])
-            # --------------------------------------------------------------------------
-            # Se conecta a base de dados pré-existente
-            conn = sqlite3.connect('remo_data1.db')
-            c = conn.cursor()
-            # Função para retirar a data, dia e mês
-            [data_hj, dia, mes] = data_hora()
-            # Retira as informações do Banco de Dados
-            c.execute(f"SELECT * FROM alunos WHERE data_pagamento = '{data_hj}'")
-            informacoes = c.fetchall()
-            i = 1
-            for info in informacoes:
-                # Escreve nas linhas do Excel n°, Aluno, Turma, Atraso, dia, mês, mat, mens
-                aluno, turma, atraso, mat, mens = str(info[0]), str(info[12]) + '-' + str(info[13]), \
-                                                  ' ', str(info[18]), str(info[19])
-                fin_page.append([i, aluno + '-' + turma, atraso, dia, mes, mat, mens])
-                i += 1
-            # ------------------------------------------------------------------
-            # Commit
-            conn.commit()
-            # Fechar
-            conn.close()
-            # Salva o Excel gerado
-            book.save('Planilhas de Controle - Teste.xlsx')
-            messagebox.showinfo("Processo Concluído", "Planilha do Excel gerado com sucesso!")
-        # ----------------------------------------------------------------------
-        except PermissionError:
-            # Erro ao salvar/gerar o arquivo
-            messagebox.showerror("Erro ao criar Excel", "Feche o arquivo Excel para criar o novo arquivo!!!")
-    # --------------------------------------------------------------------------
 
 
 # ======================================================================================================================
@@ -108,7 +41,7 @@ class TelaLogin(Tk):
     # Função para entrar no cadastro do sistema
     def func_entrar_programa(self, login, senha):
         # Se conectar a uma base de dados pré-existente
-        if file_exist("remo_data1.db"):
+        if Func_Cadastro.file_exist("remo_data1.db"):
             con = sqlite3.connect('remo_data1.db')
             # Cria um cursor (meio de modificar o db)
             q = con.cursor()
@@ -143,7 +76,7 @@ def pendencias(mes_ant):
     Atraso 1 --> Atraso 2
     Atraso 2 --> Atraso 3 ==> Retirar o aluno do sistema.
     """
-    (_, _, mes) = data_hora()
+    (_, _, mes) = Func_Cadastro.data_hora()
     if mes_ant != mes:
         # Conecta-se ao BD
         conn = sqlite3.connect('remo_data1.db')
@@ -161,78 +94,12 @@ def pendencias(mes_ant):
         # Fechar
         conn.close()
 '''
-
-
 # pendencias()
 
 
-# ======================================================================================================================
-
-
-# ======================================================================================================================
-# Função para modificar as informações do aluno
-# Pode ser uma função dentro da classe Aluno
-def bd_modificar_info(aluno, data_nasc, cpf, rg, sexo, responsavel,
-                      endereco, cep, bairro, telefone, socio,
-                      modalidade, faixa, hora, dias_aula,
-                      professor, bolsista, valor_matricula, valor_mensalidade, mensalidade_paga):
-    # Se tem responsável ou não
-    if responsavel == "Sem Responsável":
-        resp = 0
-    else:
-        resp = 1
-
-    # Como o aluno já foi matriculado, matrícula = 0.
-    # Porém, se a modificação for feita no mesmo dia da matrícula, deve constar o valor da matrícula
-    mat = 1
-
-    # Chamando a classe Aluno
-    aluno_modificado = Aluno(aluno, data_nasc, cpf, rg, sexo, resp, responsavel,
-                             endereco, bairro, cep, telefone, socio, mat,
-                             modalidade, faixa, hora, dias_aula, professor, bolsista,
-                             valor_matricula, valor_mensalidade)
-    # Verificando as informações
-    if aluno_modificado.verificacao():
-        # Se conecta a base de dados pré-existente
-        conn = sqlite3.connect('remo_data1.db')
-        c = conn.cursor()
-        c.execute(f'''UPDATE alunos SET
-                      nome_aluno = :{str(aluno)}, 
-                      data_nasc = :{str(data_nasc)},
-                      RG = :{int(rg)},
-                      sexo = :{sexo},
-                      responsavel = :{responsavel}, 
-                      endereco = :{endereco}, 
-                      CEP = :{int(cep)}, 
-                      bairro = :{bairro}, 
-                      telefone = :{int(telefone)},
-                      socio = :{int(socio)},
-                      
-                      modalidade = :{modalidade},
-                      idade = :{faixa},
-                      horario_aula = :{hora},
-                      dias_aula = :{dias_aula},
-                      professor = :{professor},
-                      bolsista = :{bolsista},
-                      valor_matricula = :{int(valor_matricula)},
-                      valor_mensalidade = :{int(valor_mensalidade)},
-                      mensalidade_paga = :{mensalidade_paga}
-
-                      WHERE CPF = :{cpf}''')
-        # Commit
-        conn.commit()
-        # Fechar
-        conn.close()
-        messagebox.showinfo("Processo concuído", "Informações modificadas com sucesso!")
-        infos.destroy()
-
-
-# ==============================================================================
-# ==============================================================================
-# Funções gerais do Programa
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Criando Classe da página inicial do programa
+# noinspection PyUnboundLocalVariable
 class RootPrograma(Tk):
     def __init__(self):
         super().__init__()
@@ -263,7 +130,7 @@ class RootPrograma(Tk):
         # Frame 0
         Label(self.frame_inicial, text="Aluno já cadastrado?").grid(row=0, column=0, sticky=W)
         self.mat = IntVar()
-        self.m = Checkbutton(self.frame_inicial, text="Sim", variable=self.mat, command=self.func_cadastro_anterior)
+        self.m = Checkbutton(self.frame_inicial, text="Sim", variable=self.mat, command=self.caixa_cadastro)
         self.m.grid(row=0, column=0, sticky=W, padx=118)
         # Entry começa desabilitado e depois habilita
         self.pesquisa = Entry(self.frame_inicial, width=30)
@@ -337,7 +204,7 @@ class RootPrograma(Tk):
         Label(self.frame1, text="Sexo").grid(row=1, column=2, sticky=W)
         # Fazer combobox depois
         # sexo_drop = ttk.Combobox(frame1, textvariable=sexo)#, *sexualidade
-        self.sexo_drop = OptionMenu(self.frame1, self.sexo, *self.sexualidade_dic)
+        self.sexo_drop = OptionMenu(self.frame1, self.sexo, *self.sexualidade_dic.values())
         self.sexo_drop.grid(row=1, column=3, sticky=W, padx=5, pady=5)
         # ------------------------------------------------------------------------------
         Label(self.frame1, text="Bairro").grid(row=4, column=2, sticky=W)
@@ -478,19 +345,20 @@ class RootPrograma(Tk):
         self.b.grid(row=3, column=4, sticky=W, padx=7, columnspan=2, pady=2)
 
         # ------------------------------------------------------------------------------
-        Button(self.frame2, text="Confirmar", command=self.btn_mod_idade).grid(row=0, column=6)
+        Button(self.frame2, text="Confirmar", command=self.func_btn_ModIdade).grid(row=0, column=6)
         # ==============================================================================
         # Pós-framas
         Button(self.frame_inicial, text="Verificar Informações",
-               command=self.confirmacao_final).grid(row=3, column=0, sticky=W, padx=10)
+               command=self.func_conf_final).grid(row=3, column=0, sticky=W, padx=10)
         # ------------------------------------------------------------------------------
-        Button(self.frame_inicial, text='Limpar', command=self.comando_limpar).grid(row=3, column=0, sticky=E)
+        Button(self.frame_inicial, text='Limpar', command=self.func_limpar).grid(row=3, column=0, sticky=E)
         # ------------------------------------------------------------------------------
-        Button(self, text="Gerar Excel do dia", command=bd_excel).grid(row=2, column=0, pady=(30, 0))
+        Button(self, text="Gerar Excel do dia", command=Func_Cadastro.bd_excel).grid(row=2, column=0, pady=(30, 0))
 
     # ==================================================================================================================
     # ==================================================================================================================
-    # 4- Marcar a caixa 'sim' em responsável
+    # Funções do root principal do programa
+    # 1- Marcar a caixa de seleção em responsável
     def caixa_responsavel(self):
         # global responsavel
         if self.resp.get() == 1:
@@ -499,7 +367,7 @@ class RootPrograma(Tk):
             self.responsavel.delete(0, END)
             self.responsavel.configure(state='disabled')
 
-    # 5- Marcar a caixa 'sim' em Sócio
+    # 2- Marcar a caixa de seleção em Sócio
     def caixa_socio(self):
         # global responsavel
         if self.social.get() == 1:
@@ -510,44 +378,7 @@ class RootPrograma(Tk):
             self.socio.insert(0, "0")
             self.socio.configure(state='disabled')
 
-    # 6- Marcar a caixa 'sim' em Mensalidade
-    def func_cadastro_anterior(self):
-        # global pesquisa
-        var = self.mat.get()
-        if var == 1:
-            # Hebilitar a caixa de texto do valor de matrícula
-            self.pesquisa.configure(state='normal')
-            self.pesquisa.delete(0, END)
-            # Limpa e desabilita as caixas de texto
-            self.comando_limpar()
-            caixas_texto_dis = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
-                                self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
-                                self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
-                                self.r, self.s, self.b]
-            for caixa in caixas_texto_dis:
-                caixa.configure(state='disabled')
-            Button(self.frame2, text="Confirmar", state='disabled').grid(row=0, column=6)
-            # Deixar selecionado o botão de Mensalidade
-            self.m.select()
-            self.pesquisa.configure(state='normal')
-            self.pesquisa.delete(0, END)
-        else:
-            # Retomar a Caixa de matrícula para o estado inicial
-            caixas_texto_enable = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
-                                   self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
-                                   self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
-                                   self.r, self.s, self.b]
-            # Habilita as caixas de texto
-            for caixa in caixas_texto_enable:
-                caixa.configure(state='normal')
-
-            self.pesquisa.delete(0, END)
-            self.pesquisa.insert(0, "Digite o número de CPF")
-            self.pesquisa.configure(state='disabled')
-            # Reabilita o Botão de Contirmar Modalidade e Idade
-            Button(self.frame2, text="Confirmar", command=self.btn_mod_idade).grid(row=0, column=6)
-
-    # 7- Marcar a caixa 'sim' em Bolsista
+    # 3- Marcar a caixa de seleção em Bolsista
     def caixa_bolsista(self):
         # Ações do programa quando a caixa de bolsista for selecionada
         var = self.bolsista.get()
@@ -567,8 +398,46 @@ class RootPrograma(Tk):
             self.matricula.configure(state='normal')
             self.matricula.delete(0, END)
 
-    # 8- Botão Limpar --> retornar os valores ao estado inicial
-    def comando_limpar(self):
+    # 4- Marcar a caixa de seleção em Mensalidade
+    def caixa_cadastro(self):
+        # global pesquisa
+        var = self.mat.get()
+        if var == 1:
+            # Hebilitar a caixa de texto do valor de matrícula
+            self.pesquisa.configure(state='normal')
+            self.pesquisa.delete(0, END)
+            # Limpa e desabilita as caixas de texto
+            self.func_limpar()
+            caixas_texto_dis = [self.nome_aluno, self.data_nasc, self.sexo_drop, self.responsavel,
+                                self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
+                                self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
+                                self.r, self.s, self.b]
+            # Desabilita as caixas de texto e caixas de marcar
+            for caixa in caixas_texto_dis:
+                caixa.configure(state='disabled')
+            Button(self.frame2, text="Confirmar", state='disabled').grid(row=0, column=6)
+            # Deixar selecionado o botão de Mensalidade
+            self.m.select()
+            self.pesquisa.configure(state='normal')
+            self.pesquisa.delete(0, END)
+        else:
+            # Retomar a Caixa de matrícula para o estado inicial
+            caixas_texto_enable = [self.nome_aluno, self.data_nasc, self.sexo_drop,
+                                   self.cpf, self.rg, self.endereco, self.cep, self.bairro, self.fone,
+                                   self.professor, self.mensalidade, self.matricula, self.mod_drop, self.idade_drop,
+                                   self.r, self.s, self.b]
+            # Habilita as caixas de texto
+            for caixa in caixas_texto_enable:
+                caixa.configure(state='normal')
+
+            self.pesquisa.delete(0, END)
+            self.pesquisa.insert(0, "Digite o número de CPF")
+            self.pesquisa.configure(state='disabled')
+            # Reabilita o Botão de Contirmar Modalidade e Idade
+            Button(self.frame2, text="Confirmar", command=self.func_btn_ModIdade).grid(row=0, column=6)
+
+    # 5- Botão Limpar --> retornar os valores ao estado inicial
+    def func_limpar(self):
         # Caso Matrícula esteja selecionada
         if self.mat.get() == 1:
             # Habilitar texto e desselecionar a caixa
@@ -584,23 +453,23 @@ class RootPrograma(Tk):
             self.pesquisa.insert(0, "Digite o número de CPF")
             self.pesquisa.configure(state='disabled')
             # Reabilita o Botão de Contirmar Modalidade e Idade
-            Button(self.frame2, text="Confirmar", command=self.btn_mod_idade).grid(row=0, column=6)
-            # Descelecionar as caixas
-            caixas_select = [self.r, self.s, self.b, self.m]
-            for caixa in caixas_select:
-                caixa.deselect()
+            Button(self.frame2, text="Confirmar", command=self.func_btn_ModIdade).grid(row=0, column=6)
             # ----------------------------------------------------------------------------------------------------------
-        #Limpa as caixas de texto
-        caixas_texto = [self.nome_aluno, self.data_nasc, self.responsavel, self.cpf, self.rg, self.responsavel,
-                        self.endereco, self.cep, self.bairro, self.fone, self.socio,
+        # Limpa as caixas de texto
+        caixas_texto = [self.nome_aluno, self.data_nasc, self.responsavel, self.cpf, self.rg,
+                        self.endereco, self.cep, self.bairro, self.fone,
                         self.mensalidade, self.matricula, self.professor]
         for caixa in caixas_texto:
             caixa.delete(0, END)
-
-        # Retornar Responsável e Sócio ao estado inicial
-        self.responsavel.configure(state='disabled')
-        self.socio.insert(0, "0")
-        self.socio.configure(state='disabled')
+        # Desceleciona as caixas
+        caixas_select = [self.r, self.s, self.b, self.m]
+        for caixa in caixas_select:
+            caixa.deselect()
+        # Retorna Responsável e Sócio ao estado inicial
+        self.caixa_responsavel()
+        self.caixa_socio()
+        # Retorna Mensalidade e Matrícula ao estado inicial
+        self.caixa_bolsista()
         # Retorna os OptionMenu para os valores iniciais "vazio"
         OptMenuVal = [self.sexo, self.mod, self.idade, self.horario, self.dia]
         for val in OptMenuVal:
@@ -618,7 +487,7 @@ class RootPrograma(Tk):
     # ==============================================================================
     # Comandos de Botão do programa
     # 0- Função auxiliar para o mod_idade
-    def hora_dia_OptMenu(self, faixa_etaria, frame, opt):
+    def func_OptMenu_HoraDia(self, faixa_etaria, frame, opt):
         if opt == 0:
             # Horário
             self.horario.set(self.horarios_dic["vazio"])
@@ -641,7 +510,7 @@ class RootPrograma(Tk):
             self.dia_aula_drop.grid(row=1, column=4, sticky=W, padx=5)
 
     # 1- Confirmar Modalidade e Idade para gerar horários e dias
-    def btn_mod_idade(self):
+    def func_btn_ModIdade(self):
         # Sumir os valores ou pegar a info de qual a tabela atual
         self.horario.set(self.horarios_dic["vazio"])
         self.dia.set(self.dias_aulas_dic["vazio"])
@@ -650,128 +519,118 @@ class RootPrograma(Tk):
             # Mensagem de erro
             messagebox.showerror("Erro na seleção", "Modalidade ou Idade não selecionados")
             # Retornar valores para vazio
-            self.hora_dia_OptMenu("vazio", self.frame2, 0)
+            self.func_OptMenu_HoraDia("vazio", self.frame2, 0)
         else:
             if self.mod.get() == self.modalidades_dic["natação"]:
                 # Natação
                 if self.idade.get() == self.idades_dic["baby"]:
                     # Baby/Gorro Branco
-                    self.hora_dia_OptMenu("baby", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("baby", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["amarelo"]:
                     # Amarelo
-                    self.hora_dia_OptMenu("natacao_infantil", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_infantil", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["laranja"] or \
                         self.idade.get() == self.idades_dic["verde"] or \
                         self.idade.get() == self.idades_dic["vermelho"]:
                     # Infantil 5~11 Laranja / Verde / Vermelho
-                    self.hora_dia_OptMenu("natacao_infantil", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_infantil", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["infanto"]:
                     # Infanto 12~18
-                    self.hora_dia_OptMenu("natacao_infanto", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_infanto", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["Pre"]:
                     # Pré-equipe
-                    self.hora_dia_OptMenu("natacao_Pre", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_Pre", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["equipe"]:
                     # Equipe
-                    self.hora_dia_OptMenu("natacao_equipe", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_equipe", self.frame2, 1)
                 # ------------------------------------------------------------------------------
                 elif self.idade.get() == self.idades_dic["adulto"]:
                     # Adulto 18+
-                    self.hora_dia_OptMenu("natacao_adulto", self.frame2, 1)
+                    self.func_OptMenu_HoraDia("natacao_adulto", self.frame2, 1)
                 # ------------------------------------------------------------------------------
             elif self.mod.get() == self.modalidades_dic["hidro"]:
                 # Hidroginástica
-                self.hora_dia_OptMenu("hidro", self.frame2, 1)
+                self.func_OptMenu_HoraDia("hidro", self.frame2, 1)
             # ------------------------------------------------------------------------------
             elif self.mod.get() == self.modalidades_dic["polo"]:
                 # Polo-aquático
-                self.hora_dia_OptMenu("polo", self.frame2, 1)
+                self.func_OptMenu_HoraDia("polo", self.frame2, 1)
             # ------------------------------------------------------------------------------
 
     # 2- Botão de Confirmar os dados no final do Programa
     # Transfrmar em Classe também?
     # noinspection PyGlobalUndefined
-    def confirmacao_final(self, nome_aluno_editor=None, data_nasc_editor=None, rg_editor=None, sexo_editor=None,
-                          responsavel_editor=None, endereco_editor=None, cep_editor=None, bairro_editor=None,
-                          fone_editor=None, socio_editor=None, modalidade_editor=None, faixa_editor=None,
-                          horario_editor=None, dia_editor=None, professor_editor=None, bolsa_editor=None,
-                          mensalidade_editor=None, pagamento_editor=None):
-        if self.mat.get() == 1:
+    def func_conf_final(self):
+        if self.mat.get() == 1 and Func_Cadastro.VerificarTexto(self.pesquisa.get(), 3, 11, "O CPF"):
+            # Entradas de valores para modificar informações
+            '''nome_aluno_editor = data_nasc_editor = cpf_editor = rg_editor = sexo_editor =
+                responsavel_editor = endereco_editor = cep_editor = bairro_editor = fone_editor =
+                socio_editor = modalidade_editor = faixa_editor = horario_editor =
+                dia_editor = professor_editor = bolsa_editor = mensalidade_editor = pagamento_editor = None'''
+            # ----------------------------------------------------------------------------------------------------------
+            # Variáveis Globais
+            global Tl_infos
+            # Criar uma página nova que mostra as informações do CPF cadastrado
+            Tl_infos = Toplevel()
+            Tl_infos.title('Informações do Aluno')
+            # create a notebook
+            notebook = ttk.Notebook(Tl_infos)
+            notebook.pack(pady=15)
+            # create frames
+            frame_infos = ttk.Frame(notebook, width=400, height=280)
+            frame_mod = ttk.Frame(notebook, width=400, height=280)
+            frame_infos.pack(fill='both', expand=True)
+            frame_mod.pack(fill='both', expand=True)
+            # add frames to notebook
+            notebook.add(frame_infos, text='Informações Gerais')
+            notebook.add(frame_mod, text='Modificar Informações')
             try:
-                # Criando uma segunda janela para mostrar os dados do aluno cadastrado
-                global infos, aluno_matriculado
-                infos = Toplevel()
-                infos.title('Informações do Aluno')
-
-                # create a notebook
-                notebook = ttk.Notebook(infos)
-                notebook.pack(pady=15)
-
-                # create frames
-                frame_infos = ttk.Frame(notebook, width=400, height=280)
-                frame_mod = ttk.Frame(notebook, width=400, height=280)
-
-                frame_infos.pack(fill='both', expand=True)
-                frame_mod.pack(fill='both', expand=True)
-
-                # add frames to notebook
-                notebook.add(frame_infos, text='Informações Gerais')
-                notebook.add(frame_mod, text='Modificar Informações')
-
-                # --------------------------------------------------------------------------------------------------------------
+                # Se conecta a base de dados
+                conn = sqlite3.connect('remo_data1.db')
+                c = conn.cursor()
+                # Pesquisa se o CPF foi cadastrado
+                c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
+                # ------------------------------------------------------------------------------------------------------
                 # Informações gerais de matrícula
 
                 # Como o aluno já foi matriculado
                 valor_matricula = 0
                 # Labels para as entradas de informações
-                labels = ["Nome do Aluno", "Data de nascimento", "CPF", "RG", "Sexo", "Responsável", "Endereço", "CEP",
-                          "Bairro", "Telefone", "Sócio", "\t Modalidade", "Faixa Etária", "Horário das Aulas",
-                          "Dias das Aulas", "Professor", "Bolsista", "Valor da Mensalidade", "Mensalidade paga?"]
+                labels = ["Nome do Aluno", "Data de nascimento", "CPF", "RG", "Sexo",
+                          "Responsável", "Endereço", "CEP", "Bairro", "Telefone",
+                          "Sócio", "\t Modalidade", "Faixa Etária", "Horário das Aulas", "Dias das Aulas",
+                          "Professor", "Bolsista", "Valor da Mensalidade", "Mensalidade paga?"]
                 i = 0
                 for item in labels:
                     Label(frame_infos, text=f"{item}:").grid(row=i, column=0, sticky=E)
                     i += 1
-
-                # Se conecta a base de dados pré-existente
-                conn = sqlite3.connect('remo_data1.db')
-                c = conn.cursor()
-                # Pesquisar os dados no BD
-                c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
+                # ------------------------------------------------------------------------------------------------------
                 # Pegar todas as infos
-                informacoes, cpf_num, i, r = c.fetchall(), '', 0, 0
-                for info in informacoes:
+                info = c.fetchone()
+                cpf_num, r = '', 0
+                for j in range(21):
                     # Informações do aluno
-                    if i == 21:
-                        break
-                    elif i == 2:
-                        cpf_num = info[i]
-                        while len(str(cpf_num)) < 11:
-                            cpf_num = '0' + str(cpf_num)
-                        Label(frame_infos, text=cpf_num).grid(row=r, column=1, sticky=W)
-                        r += 1
-                        continue
-                    elif i == 16 or i == 18:
+                    if j == 16 or j == 18:
                         # Pula a informação, mas continua na mesma linha 'r'
                         continue
+                    elif j == 2:
+                        cpf_num = info[j]
+                        while len(str(cpf_num)) < 11:
+                            cpf_num = '0' + str(cpf_num)
+                        Label(frame_infos, text=f"{cpf_num}").grid(row=r, column=1, sticky=W)
                     else:
-                        Label(frame_infos, text=info[i]).grid(row=r, column=1, sticky=W)
-                        r += 1
+                        Label(frame_infos, text=info[j]).grid(row=r, column=1, sticky=W)
                     # Próxima informação
-                    i += 1
-
+                    r += 1
                     # --------------------------------------------------------------------------------------------------
                     aluno_matriculado = Aluno(info[0], info[1], info[2], info[3], info[4], 1, info[5], info[6], info[8],
                                               info[7], info[9], info[10], 1, info[11], info[12], info[13], info[14],
                                               info[15], info[17], 0, info[19])
-                # Commit
-                conn.commit()
-                # Fechar
-                conn.close()
                 # ------------------------------------------------------------------------------------------------------
                 Button(frame_infos, text='Gerar Recibo', command=aluno_matriculado.recibo).grid(row=19, column=0,
                                                                                                 padx=10,
@@ -780,74 +639,109 @@ class RootPrograma(Tk):
                 # --------------------------------------------------------------------------------------------------------------
                 # --------------------------------------------------------------------------------------------------------------
                 # Frame - Modificar Informações
-                labels = ["Nome do Aluno", "Data de nascimento", "CPF", "RG", "Sexo", "Responsável", "Endereço", "CEP",
-                          "Bairro", "Telefone", "Sócio", "\t Modalidade", "Faixa Etária", "Horário das Aulas",
-                          "Dias das Aulas", "Professor", "Bolsista", "Valor da Mensalidade", "Mensalidade paga?"]
-                i = 0
+                r = 0
                 for item in labels:
-                    Label(frame_mod, text=f"{item}:").grid(row=i, column=0, sticky=E)
-                    i += 1
-                # Lista com os valores das Entries
-                entry_val = [nome_aluno_editor, data_nasc_editor, rg_editor, sexo_editor, responsavel_editor,
-                             endereco_editor, cep_editor, bairro_editor, fone_editor, socio_editor,
-                             modalidade_editor, faixa_editor, horario_editor, dia_editor, professor_editor,
-                             bolsa_editor, mensalidade_editor, pagamento_editor]
+                    # 19 entradas de informações
+                    Label(frame_mod, text=f"{item}:").grid(row=r, column=0, sticky=E)
+                    r += 1
+                # Lista com os valores das Entries (pula o CPF que será incluído depois)
+                '''
+                entry_val = [nome_aluno_editor, data_nasc_editor, cpf_editor, rg_editor, sexo_editor,
+                             responsavel_editor, endereco_editor, cep_editor, bairro_editor, fone_editor,
+                             socio_editor, modalidade_editor, faixa_editor, horario_editor, dia_editor,
+                             professor_editor, bolsa_editor, mensalidade_editor, pagamento_editor]
                 for i in range(len(entry_val)):
                     if i == 2:
-                        # -- cpf row 2 --
+                        # -- cpf linha 2 --
                         continue
                     entry_val[i] = Entry(frame_mod)
                     entry_val[i].grid(row=i, column=1, sticky=W)
+                    '''
+                nome_aluno_editor = Entry(frame_mod)
+                data_nasc_editor = Entry(frame_mod)
+                rg_editor = Entry(frame_mod)
+                sexo_editor = Entry(frame_mod)
+                responsavel_editor = Entry(frame_mod)
+                endereco_editor = Entry(frame_mod)
+                cep_editor = Entry(frame_mod)
+                bairro_editor = Entry(frame_mod)
+                fone_editor = Entry(frame_mod)
+                socio_editor = Entry(frame_mod)
+                modalidade_editor = Entry(frame_mod)
+                faixa_editor = Entry(frame_mod)
+                horario_editor = Entry(frame_mod)
+                dia_editor = Entry(frame_mod)
+                professor_editor = Entry(frame_mod)
+                bolsa_editor = Entry(frame_mod)
+                mensalidade_editor = Entry(frame_mod)
+                pagamento_editor = Entry(frame_mod)
 
-                # Se conecta a base de dados pré-existente
-                conn = sqlite3.connect('remo_data1.db')
-                c = conn.cursor()
-                # Pesquisar os dados no BD
-                c.execute(f"SELECT * FROM alunos WHERE CPF = {self.pesquisa.get()}")
-                # Pegar todas as infos
-                informacoes = c.fetchall()
-                i, r = 0, 0
-                for info in informacoes:
+                nome_aluno_editor.grid(row=0, column=1, sticky=W)
+                data_nasc_editor.grid(row=1, column=1, sticky=W)
+                # Pula o CPF
+                rg_editor.grid(row=3, column=1, sticky=W)
+                sexo_editor.grid(row=4, column=1, sticky=W)
+                responsavel_editor.grid(row=5, column=1, sticky=W)
+                endereco_editor.grid(row=6, column=1, sticky=W)
+                cep_editor.grid(row=7, column=1, sticky=W)
+                bairro_editor.grid(row=8, column=1, sticky=W)
+                fone_editor.grid(row=9, column=1, sticky=W)
+                socio_editor.grid(row=10, column=1, sticky=W)
+                modalidade_editor.grid(row=11, column=1, sticky=W)
+                faixa_editor.grid(row=12, column=1, sticky=W)
+                horario_editor.grid(row=13, column=1, sticky=W)
+                dia_editor.grid(row=14, column=1, sticky=W)
+                professor_editor.grid(row=15, column=1, sticky=W)
+                bolsa_editor.grid(row=16, column=1, sticky=W)
+                mensalidade_editor.grid(row=17, column=1, sticky=W)
+                pagamento_editor.grid(row=18, column=1, sticky=W)
+
+                # Pegar a info
+                cpf_editor = " "
+                entry_val = [nome_aluno_editor, data_nasc_editor, cpf_editor, rg_editor, sexo_editor,
+                             responsavel_editor, endereco_editor, cep_editor, bairro_editor, fone_editor,
+                             socio_editor, modalidade_editor, faixa_editor, horario_editor, dia_editor,
+                             professor_editor, bolsa_editor, mensalidade_editor, pagamento_editor]
+                # info = c.fetchone() --> já usei o fetchone antes
+                r = 0
+                for k in range(21):
                     # Informações do aluno
-                    if i == 21:
-                        break
-                    elif i == 2:
-                        Label(frame_mod, text=cpf_num).grid(row=i, column=1, sticky=W)
-                        r += 1
-                        continue
-                    elif i == 16 or i == 18:
+                    if k == 16 or k == 18:
                         # Pula a informação, mas continua na mesma linha 'r'
                         continue
+                    elif k == 2:
+                        cpf_num = info[k]
+                        while len(str(cpf_num)) < 11:
+                            cpf_num = '0' + str(cpf_num)
+                        Label(frame_mod, text=f"{cpf_num}").grid(row=r, column=1, sticky=W)
                     else:
-                        entry_val[i].insert(0, info[r])
-                        r += 1
+                        informacao = str(info[k])
+                        entry_val[r].insert(0, informacao)
                     # Próxima informação
-                    i += 1
+                    r += 1
                 # --------------------------------------------------------------------------------------------------
                 # Commit
                 conn.commit()
                 # Fechar
                 conn.close()
-
-
                 # ------------------------------------------------------------------------------------------------------
-
+                # Criar uma função para o botão que chama a classe e modifica os dados
                 Button(frame_mod, text='Modificar',
-                       command=lambda: bd_modificar_info(nome_aluno_editor.get(), data_nasc_editor.get(),
-                                                         self.pesquisa.get(),
-                                                         rg_editor.get(), sexo_editor.get(), responsavel_editor.get(),
-                                                         endereco_editor.get(), cep_editor.get(), bairro_editor.get(),
-                                                         fone_editor.get(), socio_editor.get(), modalidade_editor.get(),
-                                                         faixa_editor.get(), horario_editor.get(), dia_editor.get(),
-                                                         professor_editor.get(), bolsa_editor.get(),
-                                                         valor_matricula, mensalidade_editor.get(),
-                                                         pagamento_editor.get())).grid(row=19, column=0, padx=10,
-                                                                                       pady=10, sticky=W, columnspan=2)
-            except sqlite3.OperationalError:
-                infos.destroy()
-                messagebox.showerror("Erro na consulta", "CPF incorreto ou incompleto.")
+                       command=lambda: func_uaxModInfo(nome_aluno_editor.get(), data_nasc_editor.get(),
+                                                       self.pesquisa.get(),
+                                                       rg_editor.get(), sexo_editor.get(), responsavel_editor.get(),
+                                                       endereco_editor.get(), bairro_editor.get(), cep_editor.get(),
+                                                       fone_editor.get(), socio_editor.get(), modalidade_editor.get(),
+                                                       faixa_editor.get(), horario_editor.get(), dia_editor.get(),
+                                                       professor_editor.get(), bolsa_editor.get(), valor_matricula,
+                                                       mensalidade_editor.get())).grid(row=19, column=0, padx=10, pady=10,
+                                                                                       sticky=W, columnspan=2)
+            except TypeError or sqlite3.OperationalError:
+                Tl_infos.destroy()
+                messagebox.showerror("Erro na consulta", "CPF não encontrado.\n"
+                                                         "Verifique se o CPF foi escrito corretamente.")
             # ------------------------------------------------------------------------------------------------------
-        else:
+        elif self.mat.get() == 0:
             # horários de manhã
             manha = ["6:00", "7:00", "8:00", "9:00", "9:40", "10:00", "10:20", "11:00", "12:00", "13:00"]
             horario_manha = False
@@ -883,59 +777,34 @@ class RootPrograma(Tk):
                                              self.mensalidade.get())
                     # Envia os dados para a verificação e BD
                     aluno_registrado.enviar_dados()
+            # ------------------------------------------------------------------------------------------------------
+        else:
+            messagebox.showerror("Erro na consulta", "O CPF digitado não possui 11 dígitos.\n"
+                                                     "Favor, verificar o CPF correto.")
 
 
-# ==============================================================================
-# Funções adicionais para auxiliar a Classe Alunos
-def func_verificarTexto(var, dic, num_car, nome_var):
-    verif = str(var).strip()
-    # 0 — Verificação sem dicionário para texto
-    if dic == 0 and verif.replace(" ", "").isalpha():
-        return True
-
-    # 1 — Verificação com dicionário para texto
-    elif dic == 1 and verif.translate(verif.maketrans({',': None, '.': None, ' ': None})).isalnum():
-        return True
-
-    # 2 — Verificação com dicionário para data de nascimento
-    elif dic == 2:
-        try:
-            formato_dmy = bool(datetime.strptime(var, "%d/%m/%Y"))
-        except ValueError:
-            formato_dmy = False
-        # Dicionário para retirar da data
-        retirar_dic3 = {' ': None, '-': None, '/': None}
-        conversor = verif.maketrans(retirar_dic3)
-        if verif.translate(conversor).isnumeric() and len(
-                verif.translate(conversor)) == num_car and formato_dmy:
-            return True
-
-    # 3 — Verificação com dicionário para número
-    elif dic == 3:
-        retirar_dic2 = {'(': None, ')': None, '.': None, ' ': None, '-': None, '/': None}
-        conversor = verif.maketrans(retirar_dic2)
-        if type(num_car) == int and verif.translate(conversor).isnumeric() and \
-                len(verif.translate(conversor)) == num_car:
-            return True
-        elif type(num_car) == list and verif.translate(conversor).isnumeric() and (
-                num_car[0] <= len(verif.translate(conversor)) <= num_car[1]):
-            return True
-
-    # 4 — Verificação sem dicionário para número
-    elif dic == 4 and verif.replace(" ", "").isnumeric():
-        return True
-
-    # 5 — Verificação sem dicionário para qualquer coisa
-    elif dic == 5 and verif.replace(" ", "").isalnum():
-        return True
-    else:
-        messagebox.showerror("Erro de entrada de dados",
-                             f"{nome_var} não está no padrão certo!\n"
-                             "Favor, revise esta caixa de texto.")
-        return False
 # ------------------------------------------------------------------------------------------------------
+# Função auxiliar criada para Modificar as informações ao clicar no botão e redirecionar para a classe
+def func_uaxModInfo(aluno, data_nasc, cpf, rg, sexo, responsavel,
+                    endereco, bairro, cep, telefone, socio,
+                    modalidade, faixa, hora, dias_aula, professor, bolsista,
+                    valor_matricula, valor_mensalidade):
+    if responsavel == "Sem Responsável":
+        resp = 0
+    else:
+        resp = 1
+    mat = 1
+    # Atribuir a classe Aluno
+    aluno_modificado = Aluno(aluno, data_nasc, cpf, rg, sexo, resp, responsavel,
+                             endereco, bairro, cep, telefone, socio, mat,
+                             modalidade, faixa, hora, dias_aula, professor, bolsista,
+                             valor_matricula, valor_mensalidade)
+    #Mensalidade paga --> arrumar depois, por enquanto está sempre sim
+    mensalidade_paga = 1
+    aluno_modificado.bd_ModifInfo(mensalidade_paga)
 
 
+# ------------------------------------------------------------------------------------------------------
 # 1- Classe Alunos
 class Aluno:
     # Classe para verificar se os dados do aluno estão completos
@@ -943,6 +812,7 @@ class Aluno:
                  endereco_str, bairro_str, cep_num, telefone_num, socio_bol, mat_bol,
                  mod_str, idade_str, horario_str, dia_aula_str, professor_str, bolsista_bol,
                  matricula_num, mensalidade_num):
+
         self.nome_aluno = aluno_str
         self.data_nasc = data_nascimento
         self.cpf = cpf_num
@@ -977,6 +847,7 @@ class Aluno:
             if Aluno.bd_enviar_dados(self):
                 Aluno.recibo(self)
 
+    # ==========================================================================
     def verificacao(self):
         # --------------------------------------------------------------------------
         """
@@ -989,7 +860,7 @@ class Aluno:
         # --------------------------------------------------------------------------
         # 1-Verificação de textos
         # Verificação para o nome do aluno
-        nome_aluno_verif = func_verificarTexto(self.nome_aluno, 0, 0, "O Nome do ALUNO")
+        nome_aluno_verif = Func_Cadastro.VerificarTexto(self.nome_aluno, 0, 0, "O Nome do ALUNO")
         # --------------------------------------------------------------------------
         # Verificação para o nome do responsável, caso tenha um
         if self.resp == 0:
@@ -998,39 +869,40 @@ class Aluno:
             responsavel_verif = True
         else:
             # Caso tenha responsável
-            responsavel_verif = func_verificarTexto(self.responsavel, 0, 0, "O Nome do RESPONSÁVEL")
+            responsavel_verif = Func_Cadastro.VerificarTexto(self.responsavel, 0, 0, "O Nome do RESPONSÁVEL")
         # --------------------------------------------------------------------------
         # Verificação para o Professor
-        professor_verif = func_verificarTexto(self.professor, 0, 0, "O Nome do PROFESSOR")
+        professor_verif = Func_Cadastro.VerificarTexto(self.professor, 0, 0, "O Nome do PROFESSOR")
         # --------------------------------------------------------------------------
         # Verificação do endereço
-        endereco_verif = func_verificarTexto(self.endereco, 1, 0, "O ENDEREÇO")
+        endereco_verif = Func_Cadastro.VerificarTexto(self.endereco, 1, 0, "O ENDEREÇO")
         # --------------------------------------------------------------------------
         # Verificação do bairro
-        bairro_verif = func_verificarTexto(self.bairro, 1, 0, "O BAIRRO")
+        bairro_verif = Func_Cadastro.VerificarTexto(self.bairro, 1, 0, "O BAIRRO")
         # --------------------------------------------------------------------------
         # Verificação Data de Nascimento
-        data_nasc_verif = func_verificarTexto(self.data_nasc, 2, 8, "A DATA DE NASCIMENTO")
+        data_nasc_verif = Func_Cadastro.VerificarTexto(self.data_nasc, 2, 8, "A DATA DE NASCIMENTO")
         # --------------------------------------------------------------------------
         # Verificação CPF
-        cpf_verif = func_verificarTexto(self.cpf, 3, 11, "O CPF")
+        cpf_verif = Func_Cadastro.VerificarTexto(self.cpf, 3, 11, "O CPF")
         # --------------------------------------------------------------------------
         # Verificação RG
-        rg_verif = func_verificarTexto(self.rg, 3, [6, 13], "O RG")
+        rg_verif = Func_Cadastro.VerificarTexto(self.rg, 3, [6, 13], "O RG")
         # --------------------------------------------------------------------------
-        cep_verif = func_verificarTexto(self.cep, 3, 8, "O CEP")
+        # Verificação CEP
+        cep_verif = Func_Cadastro.VerificarTexto(self.cep, 3, 8, "O CEP")
         # --------------------------------------------------------------------------
         # Verificação do Telefone
-        tel_verif = func_verificarTexto(self.fone, 3, 11, "O TELEFONE")
+        tel_verif = Func_Cadastro.VerificarTexto(self.fone, 3, 11, "O TELEFONE")
         # --------------------------------------------------------------------------
         # Verificação do número de sócio
-        socio_verif = func_verificarTexto(self.fone, 5, 0, "O SÓCIO")
+        socio_verif = Func_Cadastro.VerificarTexto(self.fone, 5, 0, "O SÓCIO")
         # --------------------------------------------------------------------------
         # Verificação de Valor da Mensalidade
-        mensalidade_verif = func_verificarTexto(self.valor_mensalidade, 4, 0, "A MENSALIDADE")
+        mensalidade_verif = Func_Cadastro.VerificarTexto(self.valor_mensalidade, 4, 0, "A MENSALIDADE")
         # --------------------------------------------------------------------------
         # Verificação de Valor da Matrícula
-        matricula_verif = func_verificarTexto(self.valor_matricula, 4, 0, "A MATRÍCULA")
+        matricula_verif = Func_Cadastro.VerificarTexto(self.valor_matricula, 4, 0, "A MATRÍCULA")
         # --------------------------------------------------------------------------
         # 3-Verificação das aulas (necessário para a modificação das infos)
         # Dicionário com os caracteres do clube
@@ -1096,6 +968,8 @@ class Aluno:
                                  "Favor, verificar as informações corretamente.")
             return False
 
+    # ==========================================================================
+    # ==========================================================================
     def bd_enviar_dados(self):
         """
         Enviando as informações para o BD
@@ -1108,7 +982,7 @@ class Aluno:
             mensalidade_paga = 'Sim'
 
             # Data de Hoje para mostrar quando foi feito a matrícula
-            [data_hj, _, _] = data_hora()
+            [data_hj, _, _] = Func_Cadastro.data_hora()
 
             # Caso seja a primeira matrícula
             if self.mat:
@@ -1117,12 +991,10 @@ class Aluno:
                 c = conn.cursor()
                 # Atualiza a data de pagamento e a mensalidade paga
                 c.execute(f'''UPDATE alunos SET
-                
-                data_pagamento = :{data_hj},
-                valor_matricula = :{int(self.valor_matricula)},
-                mensalidade_paga = :{mensalidade_paga}
-                
-                WHERE CPF = :{int(self.cpf)}''')
+                data_pagamento = "{data_hj}",
+                valor_matricula = "{int(self.valor_matricula)}",
+                mensalidade_paga = "{mensalidade_paga}"
+                WHERE CPF = "{int(self.cpf)}" ''')
                 conn.commit()
                 conn.close()
             else:
@@ -1182,7 +1054,7 @@ class Aluno:
             Aluno.bd_enviar_dados(self)
 
         # Retirar a data do pagamento
-        [data_pagamento, _, _] = data_hora()
+        [data_pagamento, _, _] = Func_Cadastro.data_hora()
         # Caixa de texto para as informações do recibo
         recibo = Toplevel()
         recibo.title('Informações do Aluno')
@@ -1202,7 +1074,53 @@ class Aluno:
         query_label.grid(row=0, column=0)
         # ----------------------------------------------------------------------
         # Fechar página
-        fechar_btn = Button(recibo, text="Fechar", command=recibo.destroy)
-        fechar_btn.grid(row=1, column=0)
+        btn_fechar = Button(recibo, text="Fechar", command=recibo.destroy)
+        btn_fechar.grid(row=1, column=0)
+
+    # ==========================================================================
+    # ==========================================================================
+    def bd_ModifInfo(self, mensalidade_paga):
+        # Verificando as informações
+
+        # Vai para a outra parte
+        if Aluno.verificacao(self):
+            # Se conecta a base de dados
+            conn = sqlite3.connect('remo_data1.db')
+            c = conn.cursor()
+            # valor inteiro não precisa, mas verificar depois
+            c.execute(f'''UPDATE alunos SET
+            
+            nome_aluno = "{str(self.nome_aluno)}",
+            data_nasc = "{str(self.data_nasc)}",
+            RG = "{int(self.rg)}",
+            sexo = "{str(self.sexo)}",
+            responsavel = "{str(self.responsavel)}",
+            endereco = "{str(self.endereco)}",
+            CEP = "{int(self.cep)}",
+            bairro = "{str(self.bairro)}",
+            telefone = "{int(self.fone)}",
+            
+            socio = "{str(self.socio)}",
+            modalidade = "{str(self.mod)}",
+            idade = "{str(self.idade)}",
+            horario_aula = "{str(self.horario)}",
+            dias_aula = "{str(self.dias_das_aulas)}",
+            professor = "{str(self.professor)}",
+            bolsista = "{int(self.bolsista)}",
+            
+            valor_matricula = "{int(self.valor_matricula)}",
+            valor_mensalidade = "{int(self.valor_mensalidade)}",
+            mensalidade_paga = "{mensalidade_paga}"
+            
+            WHERE CPF = "{int(self.cpf)}" ''')
+
+
+            # Commit
+            conn.commit()
+            # Fechar
+            conn.close()
+            messagebox.showinfo("Processo concuído", "Informações modificadas com sucesso!")
+            Tl_infos.destroy()
+
 # ======================================================================================================================
 # ======================================================================================================================
